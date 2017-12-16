@@ -6,18 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://bluerhino.github.io">
-  <title>Archives | 闲情计趣</title>
+  <title>Spring @Autowired+@Qualifier与@Resource的区别 | 闲情计趣</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="My space">
-<meta property="og:type" content="website">
-<meta property="og:title" content="闲情计趣">
-<meta property="og:url" content="https://bluerhino.github.io/archives/index.html">
+  <meta name="description" content="Spring @Autowired+@Qualifier与@Resource的区别最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。">
+<meta name="keywords" content="Spring,@Autowired,@Qualifier,@Resource List">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring @Autowired+@Qualifier与@Resource的区别">
+<meta property="og:url" content="https://bluerhino.github.io/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/index.html">
 <meta property="og:site_name" content="闲情计趣">
-<meta property="og:description" content="My space">
+<meta property="og:description" content="Spring @Autowired+@Qualifier与@Resource的区别最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-12-16T14:12:00.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="闲情计趣">
-<meta name="twitter:description" content="My space">
+<meta name="twitter:title" content="Spring @Autowired+@Qualifier与@Resource的区别">
+<meta name="twitter:description" content="Spring @Autowired+@Qualifier与@Resource的区别最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。">
   
     <link rel="alternative" href="/atom.xml" title="闲情计趣" type="application/atom+xml">
   
@@ -147,36 +149,57 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Spring @Autowired+@Qualifier与@Resource的区别" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/" class="archive-article-date">
-  	<time datetime="2016-06-02T13:37:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-02</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/">Spring @Autowired+@Qualifier与@Resource的区别</a>
+    <h1 class="article-title" itemprop="name">
+      Spring @Autowired+@Qualifier与@Resource的区别
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/" class="archive-article-date">
+  	<time datetime="2016-06-02T13:37:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-02</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Spring-Autowired-Qualifier与-Resource的区别"><a href="#Spring-Autowired-Qualifier与-Resource的区别" class="headerlink" title="Spring @Autowired+@Qualifier与@Resource的区别"></a>Spring @Autowired+@Qualifier与@Resource的区别</h1><p>最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。<br><a id="more"></a></p>
+<h3 id="Autowired"><a href="#Autowired" class="headerlink" title="@Autowired"></a>@Autowired</h3><p>@Autowired是Spring定义的注解，是根据<strong>类型</strong>进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifier配合@Autowired来解决问题。</p>
+<h3 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h3><p>@Resource是JSR-250规定的注解，主要有两种类型的属性type及name，所以如果使用name属性，则使用byName的自动注入策略，而使用type属性时则使用byType自动注入策略如果既不指定name也不指定type属性，这时将通过反射机制使用byName自动注入<a href="http://blog.csdn.net/clerk0324/article/details/25198457" target="_blank" rel="noopener">策略</a> 。<br>@Resource装配顺序:</p>
+<ol>
+<li>如果同时指定了name和type，则从Spring上下文中找到唯一匹配的bean进行装配，找不到则抛出异常</li>
+<li>如果指定了name，则从上下文中查找名称（id）匹配的bean进行装配，找不到则抛出异常</li>
+<li>如果指定了type，则从上下文中找到类型匹配的唯一bean进行装配，找不到或者找到多个，都会抛出异常</li>
+<li>如果既没有指定name，又没有指定type，则自动按照byName方式进行装配；如果没有匹配，则回退为一个原始类型进行匹配，如果匹配则自动装配；</li>
+</ol>
+<h3 id="使用区别"><a href="#使用区别" class="headerlink" title="使用区别"></a>使用区别</h3><p>使用Spring注入List的时候在XML中定义:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;util:list id=&quot;myList&quot;&gt;</span><br><span class="line">        &lt;value&gt;10.1.200.104&lt;/value&gt;</span><br><span class="line">        &lt;value&gt;10.1.200.205&lt;/value&gt;</span><br><span class="line">&lt;/util:list&gt;</span><br></pre></td></tr></table></figure>
+<p>之后使用注解注入，代码1为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    List list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注入失败。修改，代码2为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注入仍然失败。修改，代码3为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(&apos;myList&apos;)</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>仍然失败。主要原因在于，使用Autowired注入，Spring默认使用按类型方式注入，而对于List集合类型Spring会读取其中的泛型类型进行注入，上面代码2的含义为注入当前bean中类型为String的对象，代码3的含义为注入当前bean中类型为String且qualifier是myList的对象。这两种含义都不能完成正确的注入。</p>
+<h3 id="正确使用"><a href="#正确使用" class="headerlink" title="正确使用"></a>正确使用</h3><p><strong>使用@Resource注入</strong>,<a href="http://stackoverflow.com/questions/1363310/auto-wiring-a-list-using-util-schema-gives-nosuchbeandefinitionexception" target="_blank" rel="noopener">引用stackoverflow上的解答</a>使用正确方式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name = &quot;myList&quot;)</span><br><span class="line">    ArrayList&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name = &quot;myList&quot;)</span><br><span class="line">    List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为Resource设置了name属性，Spring直接寻找id为myList的对象进行注入，可以注入成功。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -200,7 +223,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -213,18 +236,43 @@
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
-  
-  
-    </div></section>
+
   
 
-    
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
 
+
+
+  
+  
+  
+
+  
+
+  
+
+  
 
 
           </div>
@@ -247,8 +295,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
