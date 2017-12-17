@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="闲情计趣">
 <meta property="og:description" content="最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。 @Autowired@Autowired是Spring定义的注解，是根据类型进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifi">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-12-16T15:26:00.000Z">
+<meta property="og:updated_time" content="2017-12-17T02:39:00.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring @Autowired+@Qualifier与@Resource的区别">
 <meta name="twitter:description" content="最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。 @Autowired@Autowired是Spring定义的注解，是根据类型进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifi">
@@ -223,7 +223,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/JAVA//" class="article-tag-list-link color5">JAVA</a>
+        			<a href="/categories/Java//" class="article-tag-list-link color5">Java</a>
         		</li>
       		
 		</ul>
@@ -239,6 +239,20 @@
 </article>
 
   
+<nav id="article-nav">
+  
+    <a href="/2017/10/17/CopyOnWriteArrayList学习总结/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          CopyOnWriteArrayList学习总结
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -349,6 +363,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">同步</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
