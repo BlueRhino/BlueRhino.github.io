@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title><![CDATA[java.util.concurrent.locks.Lock详解]]></title>
+    <url>%2F2017%2F10%2F23%2Fjava-util-concurrent-locks-Lock%E8%AF%A6%E8%A7%A3%2F</url>
+    <content type="text"><![CDATA[简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。 Lock接口相关功能介绍如图所示，Lock接口定义6个方法。 lock 尝试获取锁，如当前线程无法获取锁，则当前线程进入无法调度的休眠状态，直到获取锁。 lockInterruptibly 与 lock相似，主要区别在于调用该方法后，如无法获取锁，则当前线程进入无法调度的休眠状态，直到出现以下两种情况： 获取锁； 当前线程被其他线程中断。 Lock接口及synchronized关键字对比synchronized作为Java语言的并发控制关键字，在多线程编程中十分常用，主要有三种使用方式： 修饰对象方法； 修饰静态方法； 修饰同步方法快。使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。总结]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>同步</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CopyOnWriteArrayList学习总结]]></title>
+    <url>%2F2017%2F10%2F17%2FCopyOnWriteArrayList%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%2F</url>
+    <content type="text"><![CDATA[简介CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为Doug Lea。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。 代码分析写时过程由于采用写时复制的策略，其主要作用过程在于对存储数据进行修改时。以add函数为例。一下为JDK8中实现源码：1234567891011121314public boolean add(E e) &#123; final ReentrantLock lock = this.lock; lock.lock(); try &#123; Object[] elements = getArray(); int len = elements.length; Object[] newElements = Arrays.copyOf(elements, len + 1); newElements[len] = e; setArray(newElements); return true; &#125; finally &#123; lock.unlock(); &#125;&#125; 进入函数首先获取ReentrantLock重入锁； 获取当前对象中实际存储数据的Objecte数组； 复制当前数组并且将数组长度扩展1； 将新数据插入当前数组的最后一位； 将指向原数组的变量置为指向新数组，释放锁，完成工作。对比ArrayList增加元素代码：12345public boolean add(E e) &#123; ensureCapacityInternal(size + 1); // Increments modCount!! elementData[size++] = e; return true; &#125; 通过查看代码可知，ArrayList在写入时是没有加锁的，所以多线程情况下使用并不安全，需要程序员手动进行并发控制。引用源码中说明为： Note that this implementation is not synchronized. If multiple threads access an ArrayList instance concurrently, and at least one of the threads modifies the list structurally, it must be synchronized externally. (A structural modification is any operation that adds or deletes one or more elements, or explicitly resizes the backing array; merely setting the value of an element is not a structural modification.) This is typically accomplished by synchronizing on some object that naturally encapsulates the list. If no such object exists, the list should be “wrapped” using the Collections.synchronizedList method. This is best done at creation time, to prevent accidental unsynchronized access to the list:List list = Collections.synchronizedList(new ArrayList(…)); 验证ArrayList线程不安全可使用以下代码12345678910111213141516171819202122232425262728293031323334public class Main &#123; static class AddThread implements Runnable &#123; private List&lt;String&gt; list; private CountDownLatch countDownLatch; public AddThread(List&lt;String&gt; list, CountDownLatch countDownLatch) &#123; this.list = list; this.countDownLatch = countDownLatch; &#125; @Override public void run() &#123; try &#123; countDownLatch.await(); &#125; catch (InterruptedException e) &#123; e.printStackTrace(); &#125; System.out.println(Thread.currentThread().getName()); for(int i=0;i&lt;500;i++)&#123; list.add(&quot;1&quot;); &#125; &#125; &#125; public static void main(String[] args) &#123; CountDownLatch countDownLatch = new CountDownLatch(1); List&lt;String&gt; list = new ArrayList&lt;&gt;(); for (int i = 0; i &lt; 200; i++) &#123; new Thread(new AddThread(list, countDownLatch)).start(); &#125; countDownLatch.countDown(); &#125;&#125; 运行过程中大概率会出现Java.lang.ArrayIndexOutOfBoundsException错误 优点使用CopyOnWriteArrayList可以不用进行手动同步控制，并且由于使用了读写分离的措施，在进行写入时可以同时进行数据的读取，并且数据读取过程中不需要加锁。 缺点根据其实现代码，CopyOnWriteArrayList的缺点同样明显。首先、其每次写入都需要进行数组的复制，所以对于写入操作非常消耗系统资源，尤其是内存资源，这种情况在处理存储较多数据的List时尤其明显。对于gc也造成了较大压力。其次，由于其在读取时不需要获取锁，造成如写入数据同时进行读取可能造成读取到的数据为旧数组中的数据，可能造成数据的不一致。 使用场景由此可见，CopyOnWriteArrayList比较适合用在大量读取小量写入的场景，并且要求系统对于数据的不一致宽容度较高。针对写时复制的策略，在必须要进行写入时尽量将多次写入合并为一次写入，减少数组复制次数。]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>同步</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Spring @Autowired+@Qualifier与@Resource的区别]]></title>
+    <url>%2F2016%2F06%2F02%2FSpring%20%40Autowired%2B%40Qualifier%E4%B8%8E%40Resource%E7%9A%84%E5%8C%BA%E5%88%AB%2F</url>
+    <content type="text"><![CDATA[最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。 @Autowired@Autowired是Spring定义的注解，是根据类型进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifier配合@Autowired来解决问题。 @Resource@Resource是JSR-250规定的注解，主要有两种类型的属性type及name，所以如果使用name属性，则使用byName的自动注入策略，而使用type属性时则使用byType自动注入策略如果既不指定name也不指定type属性，这时将通过反射机制使用byName自动注入策略 。@Resource装配顺序: 如果同时指定了name和type，则从Spring上下文中找到唯一匹配的bean进行装配，找不到则抛出异常 如果指定了name，则从上下文中查找名称（id）匹配的bean进行装配，找不到则抛出异常 如果指定了type，则从上下文中找到类型匹配的唯一bean进行装配，找不到或者找到多个，都会抛出异常 如果既没有指定name，又没有指定type，则自动按照byName方式进行装配；如果没有匹配，则回退为一个原始类型进行匹配，如果匹配则自动装配； 使用区别使用Spring注入List的时候在XML中定义: 1234&lt;util:list id=&quot;myList&quot;&gt; &lt;value&gt;10.1.200.104&lt;/value&gt; &lt;value&gt;10.1.200.205&lt;/value&gt;&lt;/util:list&gt; 之后使用注解注入，代码1为： 12345@Componentpublic class App &#123; @Autowired List list;&#125; 注入失败。修改，代码2为： 12345@Componentpublic class App &#123; @Autowired ArrayList&lt;String&gt; strings;&#125; 注入仍然失败。修改，代码3为： 123456@Componentpublic class App &#123; @Autowired @Qualifier(&apos;myList&apos;) ArrayList&lt;String&gt; strings;&#125; 仍然失败。主要原因在于，使用Autowired注入，Spring默认使用按类型方式注入，而对于List集合类型Spring会读取其中的泛型类型进行注入，上面代码2的含义为注入当前bean中类型为String的对象，代码3的含义为注入当前bean中类型为String且qualifier是myList的对象。这两种含义都不能完成正确的注入。 正确使用使用@Resource注入,引用stackoverflow上的解答使用正确方式为： 1234567@Componentpublic class App &#123; @Resource(name = &quot;myList&quot;) ArrayList&lt;Object&gt; list;&#125; 或者 1234567@Componentpublic class App &#123; @Resource(name = &quot;myList&quot;) List&lt;Object&gt; list;&#125; 因为Resource设置了name属性，Spring直接寻找id为myList的对象进行注入，可以注入成功。]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
+        <tag>@Autowired</tag>
+        <tag>@Qualifier</tag>
+        <tag>@Resource List</tag>
+      </tags>
+  </entry>
+</search>
