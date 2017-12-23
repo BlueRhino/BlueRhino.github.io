@@ -92,7 +92,7 @@
 <meta property="og:description" content="简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png">
-<meta property="og:updated_time" content="2017-12-17T11:30:17.000Z">
+<meta property="og:updated_time" content="2017-12-23T03:03:23.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java.util.concurrent.locks.Lock详解">
 <meta name="twitter:description" content="简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。">
@@ -407,7 +407,7 @@
 <ol>
 <li>修饰对象方法；</li>
 <li>修饰静态方法；</li>
-<li>修饰同步方法快。<br>使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。<br>Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2></li>
+<li>修饰同步方法快。<br>使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。<br>Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>未完待续</li>
 </ol>
 
       
@@ -450,6 +450,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/21/感知机对偶形式学习/" rel="prev" title="感知机对偶形式学习">
+                感知机对偶形式学习 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -535,7 +539,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -546,7 +550,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -557,7 +561,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -1135,6 +1139,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 

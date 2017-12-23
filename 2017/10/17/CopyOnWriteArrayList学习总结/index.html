@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="简介CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为Doug Lea。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-17T11:30:12.000Z">
+<meta property="og:updated_time" content="2017-12-23T03:09:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CopyOnWriteArrayList学习总结">
 <meta name="twitter:description" content="简介CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为Doug Lea。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。">
@@ -391,21 +391,21 @@
 
       
         <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。<br><a id="more"></a></p>
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="写时过程"><a href="#写时过程" class="headerlink" title="写时过程"></a>写时过程</h3><p>由于采用写时复制的策略，其主要作用过程在于对存储数据进行修改时。以add函数为例。一下为JDK8中实现源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public boolean add(E e) &#123;</span><br><span class="line">    final ReentrantLock lock = this.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    try &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        int len = elements.length;</span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + 1);</span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        setArray(newElements);</span><br><span class="line">        return true;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="写时过程"><a href="#写时过程" class="headerlink" title="写时过程"></a>写时过程</h3><p>由于采用写时复制的策略，其主要作用过程在于对存储数据进行修改时。以add函数为例。一下为JDK8中实现源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        <span class="keyword">int</span> len = elements.length;</span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + <span class="number">1</span>);</span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        setArray(newElements);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ol>
 <li>进入函数首先获取ReentrantLock重入锁；</li>
 <li>获取当前对象中实际存储数据的Objecte数组；</li>
 <li>复制当前数组并且将数组长度扩展1；</li>
 <li>将新数据插入当前数组的最后一位；</li>
-<li>将指向原数组的变量置为指向新数组，释放锁，完成工作。<h3 id="对比ArrayList"><a href="#对比ArrayList" class="headerlink" title="对比ArrayList"></a>对比ArrayList</h3>增加元素代码：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public boolean add(E e) &#123;</span><br><span class="line">        ensureCapacityInternal(size + 1);  // Increments modCount!!</span><br><span class="line">        elementData[size++] = e;</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-</li>
+<li>将指向原数组的变量置为指向新数组，释放锁，完成工作。</li>
 </ol>
+<h3 id="对比ArrayList"><a href="#对比ArrayList" class="headerlink" title="对比ArrayList"></a>对比ArrayList</h3><p>增加元素代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></span><br><span class="line">        elementData[size++] = e;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
 <p>通过查看代码可知，ArrayList在写入时是没有加锁的，所以多线程情况下使用并不安全，需要程序员手动进行并发控制。引用源码中说明为：</p>
 <blockquote>
 <p>Note that this implementation is not synchronized. If multiple threads access an ArrayList instance concurrently, and at least one of the threads modifies the list structurally, it must be synchronized externally. (A structural modification is any operation that adds or deletes one or more elements, or explicitly resizes the backing array; merely setting the value of an element is not a structural modification.) This is typically accomplished by synchronizing on some object that naturally encapsulates the list. If no such object exists, the list should be “wrapped” using the Collections.synchronizedList method. This is best done at creation time, to prevent accidental unsynchronized access to the list:<br>List list = Collections.synchronizedList(new ArrayList(…));</p>
 </blockquote>
-<p>验证ArrayList线程不安全可使用以下代码<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">public class Main &#123;</span><br><span class="line"></span><br><span class="line">    static class AddThread implements Runnable &#123;</span><br><span class="line">        private List&lt;String&gt; list;</span><br><span class="line">        private CountDownLatch countDownLatch;</span><br><span class="line"></span><br><span class="line">        public AddThread(List&lt;String&gt; list, CountDownLatch countDownLatch) &#123;</span><br><span class="line">            this.list = list;</span><br><span class="line">            this.countDownLatch = countDownLatch;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        @Override</span><br><span class="line">        public void run() &#123;</span><br><span class="line">            try &#123;</span><br><span class="line">                countDownLatch.await();</span><br><span class="line">            &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName());</span><br><span class="line">            for(int i=0;i&lt;500;i++)&#123;</span><br><span class="line">                list.add(&quot;1&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        CountDownLatch countDownLatch = new CountDownLatch(1);</span><br><span class="line">        List&lt;String&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line">        for (int i = 0; i &lt; 200; i++) &#123;</span><br><span class="line">            new Thread(new AddThread(list, countDownLatch)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        countDownLatch.countDown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>运行过程中大概率会出现Java.lang.ArrayIndexOutOfBoundsException错误</p>
+<p>验证ArrayList线程不安全可使用以下代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AddThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; list;</span><br><span class="line">        <span class="keyword">private</span> CountDownLatch countDownLatch;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">AddThread</span><span class="params">(List&lt;String&gt; list, CountDownLatch countDownLatch)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.list = list;</span><br><span class="line">            <span class="keyword">this</span>.countDownLatch = countDownLatch;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                countDownLatch.await();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName());</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">500</span>;i++)&#123;</span><br><span class="line">                list.add(<span class="string">"1"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">200</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> AddThread(list, countDownLatch)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        countDownLatch.countDown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>运行过程中<strong>大概率</strong>会出现Java.lang.ArrayIndexOutOfBoundsException错误</p>
 <h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p>使用CopyOnWriteArrayList可以不用进行手动同步控制，并且由于使用了读写分离的措施，在进行写入时可以同时进行数据的读取，并且数据读取过程中不需要加锁。</p>
 <h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>根据其实现代码，CopyOnWriteArrayList的缺点同样明显。首先、其每次写入都需要进行数组的复制，所以对于写入操作非常消耗系统资源，尤其是内存资源，这种情况在处理存储较多数据的List时尤其明显。对于gc也造成了较大压力。其次，由于其在读取时不需要获取锁，造成如写入数据同时进行读取可能造成读取到的数据为旧数组中的数据，可能造成数据的不一致。</p>
 <h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>由此可见，CopyOnWriteArrayList比较适合用在大量读取小量写入的场景，并且要求系统对于数据的不一致宽容度较高。<br>针对写时复制的策略，在必须要进行写入时尽量将多次写入合并为一次写入，减少数组复制次数。</p>
@@ -539,7 +539,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -550,7 +550,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -561,7 +561,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -1139,6 +1139,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 

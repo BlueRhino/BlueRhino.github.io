@@ -91,7 +91,7 @@
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-17T11:38:02.000Z">
+<meta property="og:updated_time" content="2017-12-23T03:04:58.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring @Autowired+@Qualifier与@Resource的区别">
 <meta name="twitter:description" content="最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。">
@@ -400,18 +400,18 @@
 <li>如果既没有指定name，又没有指定type，则自动按照byName方式进行装配；如果没有匹配，则回退为一个原始类型进行匹配，如果匹配则自动装配；</li>
 </ol>
 <h3 id="使用区别"><a href="#使用区别" class="headerlink" title="使用区别"></a>使用区别</h3><p>使用Spring注入List的时候在XML中定义:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;util:list id=&quot;myList&quot;&gt;</span><br><span class="line">        &lt;value&gt;10.1.200.104&lt;/value&gt;</span><br><span class="line">        &lt;value&gt;10.1.200.205&lt;/value&gt;</span><br><span class="line">&lt;/util:list&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">util:list</span> <span class="attr">id</span>=<span class="string">"myList"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10.1.200.104<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10.1.200.205<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">util:list</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>之后使用注解注入，代码1为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    List list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    List list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>注入失败。修改，代码2为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>注入仍然失败。修改，代码3为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    @Qualifier(&apos;myList&apos;)</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Qualifier</span>(<span class="string">'myList'</span>)</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>仍然失败。主要原因在于，使用Autowired注入，Spring默认使用按类型方式注入，而对于List集合类型Spring会读取其中的泛型类型进行注入，上面代码2的含义为注入当前bean中类型为String的对象，代码3的含义为注入当前bean中类型为String且qualifier是myList的对象。这两种含义都不能完成正确的注入。</p>
 <h3 id="正确使用"><a href="#正确使用" class="headerlink" title="正确使用"></a>正确使用</h3><p><strong>使用@Resource注入</strong>,<a href="http://stackoverflow.com/questions/1363310/auto-wiring-a-list-using-util-schema-gives-nosuchbeandefinitionexception" target="_blank" rel="noopener">引用stackoverflow上的解答</a>使用正确方式为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name = &quot;myList&quot;)</span><br><span class="line">    ArrayList&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span>(name = <span class="string">"myList"</span>)</span><br><span class="line">    ArrayList&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>或者</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">@Component</span><br><span class="line">public class App &#123;</span><br><span class="line"></span><br><span class="line">    @Resource(name = &quot;myList&quot;)</span><br><span class="line">    List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span>(name = <span class="string">"myList"</span>)</span><br><span class="line">    List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>因为Resource设置了name属性，Spring直接寻找id为myList的对象进行注入，可以注入成功。</p>
 
       
@@ -543,7 +543,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -554,7 +554,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -565,7 +565,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -1143,6 +1143,28 @@
   
 
   
+  
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        }
+      });
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+      });
+    </script>
+    <script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  
+
 
   
 
