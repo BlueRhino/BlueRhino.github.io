@@ -1,136 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search> 
-  
-    
-    <entry>
-      <title><![CDATA[java.util.concurrent.locks.Lock详解]]></title>
-      <url>/2017/10/23/java-util-concurrent-locks-Lock%E8%AF%A6%E8%A7%A3/</url>
-      <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>java.util.concurrent.locks.Lock接口（以下简称Lock）作者<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。<br>本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。<br><a id="more"></a></p>
-<h2 id="Lock接口相关功能介绍"><a href="#Lock接口相关功能介绍" class="headerlink" title="Lock接口相关功能介绍"></a>Lock接口相关功能介绍</h2><p><img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" alt=""><br>如图所示，Lock接口定义6个方法。</p>
-<p><div id="lock"></div></p>
-<ol>
-<li>lock<br> 尝试获取锁，如当前线程无法获取锁，则当前线程进入无法调度的休眠状态，直到获取锁。</li>
-<li>lockInterruptibly<br> 与 <a href="#lock">lock</a>相似，主要区别在于调用该方法后，如无法获取锁，则当前线程进入无法调度的休眠状态，直到出现以下两种情况：<ol>
-<li>获取锁；</li>
-<li>当前线程被其他线程中断。</li>
-</ol>
-</li>
-</ol>
-<h2 id="Lock接口及synchronized关键字对比"><a href="#Lock接口及synchronized关键字对比" class="headerlink" title="Lock接口及synchronized关键字对比"></a>Lock接口及synchronized关键字对比</h2><p>synchronized作为Java语言的并发控制关键字，在多线程编程中十分常用，主要有三种使用方式：</p>
-<ol>
-<li>修饰对象方法；</li>
-<li>修饰静态方法；</li>
-<li>修饰同步方法快。<br>使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。<br>Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>未完待续</li>
-</ol>
-]]></content>
-      
-        <categories>
-            
-            <category> Java </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> Java </tag>
-            
-            <tag> 同步 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[CopyOnWriteArrayList学习总结]]></title>
-      <url>/2017/10/17/CopyOnWriteArrayList%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93/</url>
-      <content type="html"><![CDATA[<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。<br><a id="more"></a></p>
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="写时过程"><a href="#写时过程" class="headerlink" title="写时过程"></a>写时过程</h3><p>由于采用写时复制的策略，其主要作用过程在于对存储数据进行修改时。以add函数为例。一下为JDK8中实现源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> ReentrantLock lock = <span class="keyword">this</span>.lock;</span><br><span class="line">    lock.lock();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Object[] elements = getArray();</span><br><span class="line">        <span class="keyword">int</span> len = elements.length;</span><br><span class="line">        Object[] newElements = Arrays.copyOf(elements, len + <span class="number">1</span>);</span><br><span class="line">        newElements[len] = e;</span><br><span class="line">        setArray(newElements);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        lock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<ol>
-<li>进入函数首先获取ReentrantLock重入锁；</li>
-<li>获取当前对象中实际存储数据的Objecte数组；</li>
-<li>复制当前数组并且将数组长度扩展1；</li>
-<li>将新数据插入当前数组的最后一位；</li>
-<li>将指向原数组的变量置为指向新数组，释放锁，完成工作。</li>
-</ol>
-<h3 id="对比ArrayList"><a href="#对比ArrayList" class="headerlink" title="对比ArrayList"></a>对比ArrayList</h3><p>增加元素代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;</span><br><span class="line">        ensureCapacityInternal(size + <span class="number">1</span>);  <span class="comment">// Increments modCount!!</span></span><br><span class="line">        elementData[size++] = e;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
-<p>通过查看代码可知，ArrayList在写入时是没有加锁的，所以多线程情况下使用并不安全，需要程序员手动进行并发控制。引用源码中说明为：</p>
-<blockquote>
-<p>Note that this implementation is not synchronized. If multiple threads access an ArrayList instance concurrently, and at least one of the threads modifies the list structurally, it must be synchronized externally. (A structural modification is any operation that adds or deletes one or more elements, or explicitly resizes the backing array; merely setting the value of an element is not a structural modification.) This is typically accomplished by synchronizing on some object that naturally encapsulates the list. If no such object exists, the list should be “wrapped” using the Collections.synchronizedList method. This is best done at creation time, to prevent accidental unsynchronized access to the list:<br>List list = Collections.synchronizedList(new ArrayList(…));</p>
-</blockquote>
-<p>验证ArrayList线程不安全可使用以下代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AddThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> List&lt;String&gt; list;</span><br><span class="line">        <span class="keyword">private</span> CountDownLatch countDownLatch;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">AddThread</span><span class="params">(List&lt;String&gt; list, CountDownLatch countDownLatch)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.list = list;</span><br><span class="line">            <span class="keyword">this</span>.countDownLatch = countDownLatch;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                countDownLatch.await();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(Thread.currentThread().getName());</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">500</span>;i++)&#123;</span><br><span class="line">                list.add(<span class="string">"1"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        CountDownLatch countDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</span><br><span class="line">        List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">200</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">new</span> Thread(<span class="keyword">new</span> AddThread(list, countDownLatch)).start();</span><br><span class="line">        &#125;</span><br><span class="line">        countDownLatch.countDown();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>运行过程中<strong>大概率</strong>会出现Java.lang.ArrayIndexOutOfBoundsException错误</p>
-<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><p>使用CopyOnWriteArrayList可以不用进行手动同步控制，并且由于使用了读写分离的措施，在进行写入时可以同时进行数据的读取，并且数据读取过程中不需要加锁。</p>
-<h2 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h2><p>根据其实现代码，CopyOnWriteArrayList的缺点同样明显。首先、其每次写入都需要进行数组的复制，所以对于写入操作非常消耗系统资源，尤其是内存资源，这种情况在处理存储较多数据的List时尤其明显。对于gc也造成了较大压力。其次，由于其在读取时不需要获取锁，造成如写入数据同时进行读取可能造成读取到的数据为旧数组中的数据，可能造成数据的不一致。</p>
-<h2 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2><p>由此可见，CopyOnWriteArrayList比较适合用在大量读取小量写入的场景，并且要求系统对于数据的不一致宽容度较高。<br>针对写时复制的策略，在必须要进行写入时尽量将多次写入合并为一次写入，减少数组复制次数。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> Java </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> Java </tag>
-            
-            <tag> 同步 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Spring @Autowired+@Qualifier与@Resource的区别]]></title>
-      <url>/2016/06/02/Spring%20@Autowired+@Qualifier%E4%B8%8E@Resource%E7%9A%84%E5%8C%BA%E5%88%AB/</url>
-      <content type="html"><![CDATA[<p>最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。<br><a id="more"></a></p>
-<h3 id="Autowired"><a href="#Autowired" class="headerlink" title="@Autowired"></a>@Autowired</h3><p>@Autowired是Spring定义的注解，是根据<strong>类型</strong>进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifier配合@Autowired来解决问题。</p>
-<h3 id="Resource"><a href="#Resource" class="headerlink" title="@Resource"></a>@Resource</h3><p>@Resource是JSR-250规定的注解，主要有两种类型的属性type及name，所以如果使用name属性，则使用byName的自动注入策略，而使用type属性时则使用byType自动注入策略如果既不指定name也不指定type属性，这时将通过反射机制使用byName自动注入<a href="http://blog.csdn.net/clerk0324/article/details/25198457" target="_blank" rel="noopener">策略</a> 。<br>@Resource装配顺序:</p>
-<ol>
-<li>如果同时指定了name和type，则从Spring上下文中找到唯一匹配的bean进行装配，找不到则抛出异常</li>
-<li>如果指定了name，则从上下文中查找名称（id）匹配的bean进行装配，找不到则抛出异常</li>
-<li>如果指定了type，则从上下文中找到类型匹配的唯一bean进行装配，找不到或者找到多个，都会抛出异常</li>
-<li>如果既没有指定name，又没有指定type，则自动按照byName方式进行装配；如果没有匹配，则回退为一个原始类型进行匹配，如果匹配则自动装配；</li>
-</ol>
-<h3 id="使用区别"><a href="#使用区别" class="headerlink" title="使用区别"></a>使用区别</h3><p>使用Spring注入List的时候在XML中定义:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">util:list</span> <span class="attr">id</span>=<span class="string">"myList"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10.1.200.104<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">value</span>&gt;</span>10.1.200.205<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">util:list</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>之后使用注解注入，代码1为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    List list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注入失败。修改，代码2为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>注入仍然失败。修改，代码3为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="meta">@Qualifier</span>(<span class="string">'myList'</span>)</span><br><span class="line">    ArrayList&lt;String&gt; strings;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>仍然失败。主要原因在于，使用Autowired注入，Spring默认使用按类型方式注入，而对于List集合类型Spring会读取其中的泛型类型进行注入，上面代码2的含义为注入当前bean中类型为String的对象，代码3的含义为注入当前bean中类型为String且qualifier是myList的对象。这两种含义都不能完成正确的注入。</p>
-<h3 id="正确使用"><a href="#正确使用" class="headerlink" title="正确使用"></a>正确使用</h3><p><strong>使用@Resource注入</strong>,<a href="http://stackoverflow.com/questions/1363310/auto-wiring-a-list-using-util-schema-gives-nosuchbeandefinitionexception" target="_blank" rel="noopener">引用stackoverflow上的解答</a>使用正确方式为：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span>(name = <span class="string">"myList"</span>)</span><br><span class="line">    ArrayList&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>或者</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">App</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Resource</span>(name = <span class="string">"myList"</span>)</span><br><span class="line">    List&lt;Object&gt; list;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>因为Resource设置了name属性，Spring直接寻找id为myList的对象进行注入，可以注入成功。</p>
-]]></content>
-      
-        <categories>
-            
-            <category> Java </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> Spring </tag>
-            
-            <tag> @Autowired </tag>
-            
-            <tag> @Qualifier </tag>
-            
-            <tag> @Resource List </tag>
-            
-        </tags>
-        
-    </entry>
-    
-  
-  
+<search>
+  <entry>
+    <title><![CDATA[感知机对偶形式学习]]></title>
+    <url>%2F2017%2F12%2F21%2F%E6%84%9F%E7%9F%A5%E6%9C%BA%E5%AF%B9%E5%81%B6%E5%BD%A2%E5%BC%8F%E5%AD%A6%E4%B9%A0%2F</url>
+    <content type="text"><![CDATA[总结感知机及其对偶形式 问题背景实际应用中常出现二元分类问题，如引用台湾大学机器学习基石课程[1]的信用卡案例：如有用户申请信用卡，其个人信息如下： 特征 数据 年龄 23 性别 女 年收入 1，000，000 居住年限 1 工作年限 0.5 负债 200，000 银行具有原来的信用卡申请记录（包括申请用户信息及审批结果），如何根据原来的记录判断当前申请是否能够批准就是一个典型的二分问题。输入数据为个人信息，训练数据为历史申请及审批记录，输出数据为是否同意申请。假设银行根据申请用户的各项信息（特征）为用户打分，并且设定一个阈值，在用户得分超过该阈值则同意信用卡申请，否则拒绝申请。故假设用户具m个特征为$$x=({x_1,x_2,\cdots,x_m})$$得分阈值为$d$。每个特征对于最终的用户得分有不同的重要程度，所以为每一个特征增加入不同的权值$w=({w_1,w_2,\cdots,w_m})$,用户最终得分为$$w_1x_1+w_2x_2+\cdots+w_mxm=\sum{i=1}^{m}w_ixi$$最后只需要比较 $\sum{i=1}^{m}w_ix_i$与阈值$d$的大小就可以得出结果。观察上文公式，如何确定每一个信息的权值$w$及同意申请的阈值$d$就是解决问题的关键，由于具有历史数据，使用历史数据确定参数的想法就水到渠成。 问题抽象根据上文背景问题的提出，可进行抽象，银行n笔已知的数据可以抽象为训练数据集$$T={(x_1,y_1),(x_2,y_2),\cdots,(x_n,yn)}$$其中$x\in\chi ,\chi\subseteq R^m$，$y\in\mathcal{Y}={+1,-1}$。设上文求和公式及阈值之差为函数$$h(x)=\sum{i=1}^{m}w_ixi-d$$为简化公式取$b=-d$，则公式变化为：$$h(x)=\sum{i=1}^{m}w_ix_i+b$$改写为向量形式为:$$h(x)=w\cdot x+b$$当$h(x)&gt;0$时，发放信用卡，否则拒绝发放信用卡使用取符号的函数$sign$，得到函数$$f(x)=sign(w\cdot x+b)$$此函数为感知机算法需要学习得到的最终函数。 感知机介绍感知机1957年由Rosenblatt提出，是支持向量机及神经网络基础算法。感知机主要通过训练数据集学习函数：$$f(x)=sign(w\cdot x+b)$$中的模型参数$w$及$b$，其中$x\in\chi ,\chi\subseteq R^m,w\in R^m,b\in R$。感知机算法要求训练集是线性可分，当训练集线性可分时可以证明感知机算法可以通过有限次的搜索找到将训练集完全区分的超平面，否则感知机算法将不会收敛[2]。未完待续 [1] 林轩田.机器学习基石[R].台湾:台湾大学. [2] 李航.统计学习方法[M].北京:清华大学出版社,2012:26-33.]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>感知机</tag>
+        <tag>统计学习方法</tag>
+        <tag>李航</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[java.util.concurrent.locks.Lock详解]]></title>
+    <url>%2F2017%2F10%2F23%2Fjava-util-concurrent-locks-Lock%E8%AF%A6%E8%A7%A3%2F</url>
+    <content type="text"><![CDATA[简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。 Lock接口相关功能介绍如图所示，Lock接口定义6个方法。 lock 尝试获取锁，如当前线程无法获取锁，则当前线程进入无法调度的休眠状态，直到获取锁。 lockInterruptibly 与 lock相似，主要区别在于调用该方法后，如无法获取锁，则当前线程进入无法调度的休眠状态，直到出现以下两种情况： 获取锁； 当前线程被其他线程中断。 Lock接口及synchronized关键字对比synchronized作为Java语言的并发控制关键字，在多线程编程中十分常用，主要有三种使用方式： 修饰对象方法； 修饰静态方法； 修饰同步方法快。使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。总结未完待续]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>同步</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[CopyOnWriteArrayList学习总结]]></title>
+    <url>%2F2017%2F10%2F17%2FCopyOnWriteArrayList%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93%2F</url>
+    <content type="text"><![CDATA[简介CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为Doug Lea。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。 代码分析写时过程由于采用写时复制的策略，其主要作用过程在于对存储数据进行修改时。以add函数为例。一下为JDK8中实现源码：1234567891011121314public boolean add(E e) &#123; final ReentrantLock lock = this.lock; lock.lock(); try &#123; Object[] elements = getArray(); int len = elements.length; Object[] newElements = Arrays.copyOf(elements, len + 1); newElements[len] = e; setArray(newElements); return true; &#125; finally &#123; lock.unlock(); &#125;&#125; 进入函数首先获取ReentrantLock重入锁； 获取当前对象中实际存储数据的Objecte数组； 复制当前数组并且将数组长度扩展1； 将新数据插入当前数组的最后一位； 将指向原数组的变量置为指向新数组，释放锁，完成工作。 对比ArrayList增加元素代码：12345public boolean add(E e) &#123; ensureCapacityInternal(size + 1); // Increments modCount!! elementData[size++] = e; return true; &#125; 通过查看代码可知，ArrayList在写入时是没有加锁的，所以多线程情况下使用并不安全，需要程序员手动进行并发控制。引用源码中说明为： Note that this implementation is not synchronized. If multiple threads access an ArrayList instance concurrently, and at least one of the threads modifies the list structurally, it must be synchronized externally. (A structural modification is any operation that adds or deletes one or more elements, or explicitly resizes the backing array; merely setting the value of an element is not a structural modification.) This is typically accomplished by synchronizing on some object that naturally encapsulates the list. If no such object exists, the list should be “wrapped” using the Collections.synchronizedList method. This is best done at creation time, to prevent accidental unsynchronized access to the list:List list = Collections.synchronizedList(new ArrayList(…)); 验证ArrayList线程不安全可使用以下代码12345678910111213141516171819202122232425262728293031323334public class Main &#123; static class AddThread implements Runnable &#123; private List&lt;String&gt; list; private CountDownLatch countDownLatch; public AddThread(List&lt;String&gt; list, CountDownLatch countDownLatch) &#123; this.list = list; this.countDownLatch = countDownLatch; &#125; @Override public void run() &#123; try &#123; countDownLatch.await(); &#125; catch (InterruptedException e) &#123; e.printStackTrace(); &#125; System.out.println(Thread.currentThread().getName()); for(int i=0;i&lt;500;i++)&#123; list.add("1"); &#125; &#125; &#125; public static void main(String[] args) &#123; CountDownLatch countDownLatch = new CountDownLatch(1); List&lt;String&gt; list = new ArrayList&lt;&gt;(); for (int i = 0; i &lt; 200; i++) &#123; new Thread(new AddThread(list, countDownLatch)).start(); &#125; countDownLatch.countDown(); &#125;&#125; 运行过程中大概率会出现Java.lang.ArrayIndexOutOfBoundsException错误 优点使用CopyOnWriteArrayList可以不用进行手动同步控制，并且由于使用了读写分离的措施，在进行写入时可以同时进行数据的读取，并且数据读取过程中不需要加锁。 缺点根据其实现代码，CopyOnWriteArrayList的缺点同样明显。首先、其每次写入都需要进行数组的复制，所以对于写入操作非常消耗系统资源，尤其是内存资源，这种情况在处理存储较多数据的List时尤其明显。对于gc也造成了较大压力。其次，由于其在读取时不需要获取锁，造成如写入数据同时进行读取可能造成读取到的数据为旧数组中的数据，可能造成数据的不一致。 使用场景由此可见，CopyOnWriteArrayList比较适合用在大量读取小量写入的场景，并且要求系统对于数据的不一致宽容度较高。针对写时复制的策略，在必须要进行写入时尽量将多次写入合并为一次写入，减少数组复制次数。]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>同步</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[Spring @Autowired+@Qualifier与@Resource的区别]]></title>
+    <url>%2F2016%2F06%2F02%2FSpring%20%40Autowired%2B%40Qualifier%E4%B8%8E%40Resource%E7%9A%84%E5%8C%BA%E5%88%AB%2F</url>
+    <content type="text"><![CDATA[最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。 @Autowired@Autowired是Spring定义的注解，是根据类型进行自动装配的。如果当spring上下文中存在不止一个存在一个需要装配类型的bean时，就会抛出BeanCreationException异常;这时我们可以使用@Qualifier配合@Autowired来解决问题。 @Resource@Resource是JSR-250规定的注解，主要有两种类型的属性type及name，所以如果使用name属性，则使用byName的自动注入策略，而使用type属性时则使用byType自动注入策略如果既不指定name也不指定type属性，这时将通过反射机制使用byName自动注入策略 。@Resource装配顺序: 如果同时指定了name和type，则从Spring上下文中找到唯一匹配的bean进行装配，找不到则抛出异常 如果指定了name，则从上下文中查找名称（id）匹配的bean进行装配，找不到则抛出异常 如果指定了type，则从上下文中找到类型匹配的唯一bean进行装配，找不到或者找到多个，都会抛出异常 如果既没有指定name，又没有指定type，则自动按照byName方式进行装配；如果没有匹配，则回退为一个原始类型进行匹配，如果匹配则自动装配； 使用区别使用Spring注入List的时候在XML中定义: 1234&lt;util:list id="myList"&gt; &lt;value&gt;10.1.200.104&lt;/value&gt; &lt;value&gt;10.1.200.205&lt;/value&gt;&lt;/util:list&gt; 之后使用注解注入，代码1为： 12345@Componentpublic class App &#123; @Autowired List list;&#125; 注入失败。修改，代码2为： 12345@Componentpublic class App &#123; @Autowired ArrayList&lt;String&gt; strings;&#125; 注入仍然失败。修改，代码3为： 123456@Componentpublic class App &#123; @Autowired @Qualifier('myList') ArrayList&lt;String&gt; strings;&#125; 仍然失败。主要原因在于，使用Autowired注入，Spring默认使用按类型方式注入，而对于List集合类型Spring会读取其中的泛型类型进行注入，上面代码2的含义为注入当前bean中类型为String的对象，代码3的含义为注入当前bean中类型为String且qualifier是myList的对象。这两种含义都不能完成正确的注入。 正确使用使用@Resource注入,引用stackoverflow上的解答使用正确方式为： 1234567@Componentpublic class App &#123; @Resource(name = "myList") ArrayList&lt;Object&gt; list;&#125; 或者 1234567@Componentpublic class App &#123; @Resource(name = "myList") List&lt;Object&gt; list;&#125; 因为Resource设置了name属性，Spring直接寻找id为myList的对象进行注入，可以注入成功。]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Spring</tag>
+        <tag>@Autowired</tag>
+        <tag>@Qualifier</tag>
+        <tag>@Resource List</tag>
+      </tags>
+  </entry>
 </search>
