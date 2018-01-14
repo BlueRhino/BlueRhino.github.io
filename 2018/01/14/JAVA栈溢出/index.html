@@ -72,7 +72,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="JAVA,JVM,JAVA虚拟机,栈溢出," />
 
 
 
@@ -83,16 +83,20 @@
 
 
 
-<meta name="description" content="My space">
-<meta property="og:type" content="website">
-<meta property="og:title" content="闲情记趣">
-<meta property="og:url" content="http://bluerhino.github.io/index.html">
+<meta name="description" content="Java栈溢出小记今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。">
+<meta name="keywords" content="JAVA,JVM,JAVA虚拟机,栈溢出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA栈溢出">
+<meta property="og:url" content="http://bluerhino.github.io/2018/01/14/JAVA栈溢出/index.html">
 <meta property="og:site_name" content="闲情记趣">
-<meta property="og:description" content="My space">
+<meta property="og:description" content="Java栈溢出小记今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
+<meta property="og:updated_time" content="2018-01-14T12:01:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="闲情记趣">
-<meta name="twitter:description" content="My space">
+<meta name="twitter:title" content="JAVA栈溢出">
+<meta name="twitter:description" content="Java栈溢出小记今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。">
+<meta name="twitter:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
 
 
 
@@ -122,13 +126,13 @@
 
 
 
-  <link rel="canonical" href="http://bluerhino.github.io/"/>
+  <link rel="canonical" href="http://bluerhino.github.io/2018/01/14/JAVA栈溢出/"/>
 
 
 
 
 
-  <title>闲情记趣</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  <title>JAVA栈溢出 | 闲情记趣</title><!-- hexo-inject:begin --><!-- hexo-inject:end -->
   
 
 
@@ -147,8 +151,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left 
-  page-home">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -285,9 +288,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -317,9 +320,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/14/JAVA栈溢出/" itemprop="url">JAVA栈溢出</a></h1>
+          <h1 class="post-title" itemprop="name headline">JAVA栈溢出</h1>
         
 
         <div class="post-meta">
@@ -407,16 +408,35 @@
       
 
       
-        
-          <h2 id="Java栈溢出小记"><a href="#Java栈溢出小记" class="headerlink" title="Java栈溢出小记"></a>Java栈溢出小记</h2><p>今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2018/01/14/JAVA栈溢出/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+        <h2 id="Java栈溢出小记"><a href="#Java栈溢出小记" class="headerlink" title="Java栈溢出小记"></a>Java栈溢出小记</h2><p>今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。<br><a id="more"></a></p>
+<h2 id="Java虚拟机结构简介"><a href="#Java虚拟机结构简介" class="headerlink" title="Java虚拟机结构简介"></a>Java虚拟机结构简介</h2><p>根据《Java虚拟机规范》<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/" target="_blank" rel="noopener">(The Java Virtual Machine Specification)</a>对于Java虚拟机运行时数据区域<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5" target="_blank" rel="noopener">(Run-Time Data Areas)</a>的描述，虚拟机运行时的描述，其构成图如下所示:<img src="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" alt=""><br>图中，PC寄存器、Java虚拟机栈及本地方法栈为各线程私有，方法区（包括运行时常量取）及堆为线程间共享的存储空间。针对问题提出的栈溢出，有两个区域与其相关，包括Java虚拟机栈及本地方法栈。查阅《Java虚拟机规范》，针对栈溢出有如下两段描述：<br>对于Java虚拟机栈</p>
+<blockquote>
+<p>The following exceptional conditions are associated with Java Virtual Machine stacks:</p>
+<ul>
+<li>If the computation in a thread requires a larger Java Virtual Machine stack than is permitted, the Java Virtual Machine throws a <strong>StackOverflowError</strong>.</li>
+<li>If Java Virtual Machine stacks can be dynamically expanded, and expansion is attempted but insufficient memory can be made available to effect the expansion, or if insufficient memory can be made available to create the initial Java Virtual Machine stack for a new thread, the Java Virtual Machine throws an <strong>OutOfMemoryError</strong>.</li>
+</ul>
+</blockquote>
+<p>对于本地方法栈</p>
+<blockquote>
+<p>The following exceptional conditions are associated with native method stacks:</p>
+<ul>
+<li>If the computation in a thread requires a larger native method stack than is permitted, the Java Virtual Machine throws a <strong>StackOverflowError</strong>.</li>
+<li>If native method stacks can be dynamically expanded and native method stack expansion is attempted but insufficient memory can be made available, or if insufficient memory can be made available to create the initial native method stack for a new thread, the Java Virtual Machine throws an <strong>OutOfMemoryError</strong>.</li>
+</ul>
+</blockquote>
+<p>由此可见对于Java虚拟机栈与本地方法栈都定义了相似的两种溢出：</p>
+<ol>
+<li>线程请求栈上分配内存时，内存不足：此溢出一般出现在线程递归调用方法时。在线程调用方法时虚拟机创建<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.6" target="_blank" rel="noopener">栈帧</a>保存方法调用信息，在方法调用完成后销毁栈帧释放存储，如果在方法调用过程中无法创建栈帧则会报出StackOverflowError异常。</li>
+<li>动态扩展栈或线程创建时无法分配足够内存：此溢出一般出现在创建新的线程时。创建新的线程，需要在栈上为其分配存储，如果此时栈上存储不足以分配则会报出OutOfMemoryError异常。</li>
+</ol>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>以下代码在Mac版JDK8中实现及运行，由于HotSpot实现中没有分Java虚拟机栈及本地方法栈<sup><a href="#reference-doc">[1]</a></sup>，故以下代码只针对Java虚拟机栈。Hotspot中设置栈容量的参数为<a href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html" target="_blank" rel="noopener">-Xss</a>，后续实验均设置-Xss1M，使用Junit4进行测试</p>
+<h3 id="分配栈帧失败（StackOverflowError）"><a href="#分配栈帧失败（StackOverflowError）" class="headerlink" title="分配栈帧失败（StackOverflowError）"></a>分配栈帧失败（StackOverflowError）</h3><p>代码为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackOverflow</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callMyself</span><span class="params">(<span class="keyword">int</span> depth)</span> </span>&#123;</span><br><span class="line">        System.out.println(depth);</span><br><span class="line">        callMyself(++depth);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackOverflowTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callMyself</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        StackOverflow overflow = <span class="keyword">new</span> StackOverflow();</span><br><span class="line">        overflow.callMyself(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终会抛出java.lang.StackOverflowError，且最终能够达到的栈深度主要与栈内存最大大小与栈帧中局部变量占用的空间有关。使用如下代码最大深度会明显变小<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StackOverflow</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callMyself</span><span class="params">(<span class="keyword">int</span> depth)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a,b,c,d,e,f,g,h,i,j,k;</span><br><span class="line">        System.out.println(depth+<span class="string">"|"</span>);</span><br><span class="line">        callMyself(++depth);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="为线程分配栈上内存失败（OutOfMemoryError）"><a href="#为线程分配栈上内存失败（OutOfMemoryError）" class="headerlink" title="为线程分配栈上内存失败（OutOfMemoryError）"></a>为线程分配栈上内存失败（OutOfMemoryError）</h3><p>代码为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OutOfMemory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createThread</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            Thread t = <span class="keyword">new</span> Thread(() -&gt; &#123;</span><br><span class="line">                <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">                    System.out.println(System.currentTimeMillis());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">            t.start();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">OutOfMemoryTest</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">createThread</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        OutOfMemory outOfMemory = <span class="keyword">new</span> OutOfMemory();</span><br><span class="line">        outOfMemory.createThread();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终会抛出OutOfMemoryError。</p>
+<p><span id="reference-doc">参考文献</span><br>[1] 周志明.深入理解Java虚拟机[M].北京:机械工业出版社,53</p>
+
       
     </div>
     
@@ -431,176 +451,42 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2017/12/21/感知机对偶形式学习/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="BlueRhino">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/favicon.ico">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="闲情记趣">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/21/感知机对偶形式学习/" itemprop="url">感知机对偶形式学习</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-21T22:01:56+08:00">
-                2017-12-21
-              </time>
-            
-
-            
-
-            
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/机器学习/" itemprop="url" rel="index">
-                    <span itemprop="name">机器学习</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/JAVA/" rel="tag"># JAVA</a>
           
-
+            <a href="/tags/JVM/" rel="tag"># JVM</a>
           
-            
+            <a href="/tags/JAVA虚拟机/" rel="tag"># JAVA虚拟机</a>
           
-
+            <a href="/tags/栈溢出/" rel="tag"># 栈溢出</a>
           
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+      
 
       
       
-        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
-          
-          
-            <div class="post-gallery-row">
-              <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjceqeofo0008ta6hnzr22u4v"
-                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" itemprop="contentUrl"/>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/21/感知机对偶形式学习/" rel="next" title="感知机对偶形式学习">
+                <i class="fa fa-chevron-left"></i> 感知机对偶形式学习
               </a>
             
-          
+          </div>
 
-          
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
           </div>
         </div>
       
 
       
-        
-          <h1 id="总结感知机及其对偶形式"><a href="#总结感知机及其对偶形式" class="headerlink" title="总结感知机及其对偶形式"></a>总结感知机及其对偶形式</h1>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/12/21/感知机对偶形式学习/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -610,455 +496,27 @@
   </article>
 
 
-    
-      
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2017/10/23/java-util-concurrent-locks-Lock详解/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="BlueRhino">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/favicon.ico">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="闲情记趣">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/23/java-util-concurrent-locks-Lock详解/" itemprop="url">java.util.concurrent.locks.Lock详解</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-23T19:39:22+08:00">
-                2017-10-23
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>java.util.concurrent.locks.Lock接口（以下简称Lock）作者<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。<br>本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/10/23/java-util-concurrent-locks-Lock详解/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
+    <div class="post-spread">
       
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
 
 
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2017/10/17/CopyOnWriteArrayList学习总结/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="BlueRhino">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/favicon.ico">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="闲情记趣">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/17/CopyOnWriteArrayList学习总结/" itemprop="url">CopyOnWriteArrayList学习总结</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-17T20:28:00+08:00">
-                2017-10-17
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>CopyOnWriteArrayList类位于java.util.concurrent包，JDK1.5引入，作者为<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>。CopyOnWriteArrayList是一个线程安全的List，使用“写时复制”的思想在进行所有写入操作（增加、删除等）是都会进行内部存储元素数组的复制。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/10/17/CopyOnWriteArrayList学习总结/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
           </div>
-          <!--/noindex-->
-        
-      
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zMjU2OC85MTI5"></div>
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="BlueRhino">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/favicon.ico">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="闲情记趣">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/" itemprop="url">Spring @Autowired+@Qualifier与@Resource的区别</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-02T21:37:17+08:00">
-                2016-06-02
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Java/" itemprop="url" rel="index">
-                    <span itemprop="name">Java</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
 
   
 
 
-          </div>
-          
-
-
-          
 
         </div>
         
@@ -1079,8 +537,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1154,6 +621,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Java栈溢出小记"><span class="nav-text"><a href="#Java&#x6808;&#x6EA2;&#x51FA;&#x5C0F;&#x8BB0;" class="headerlink" title="Java&#x6808;&#x6EA2;&#x51FA;&#x5C0F;&#x8BB0;"></a>Java&#x6808;&#x6EA2;&#x51FA;&#x5C0F;&#x8BB0;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Java虚拟机结构简介"><span class="nav-text"><a href="#Java&#x865A;&#x62DF;&#x673A;&#x7ED3;&#x6784;&#x7B80;&#x4ECB;" class="headerlink" title="Java&#x865A;&#x62DF;&#x673A;&#x7ED3;&#x6784;&#x7B80;&#x4ECB;"></a>Java&#x865A;&#x62DF;&#x673A;&#x7ED3;&#x6784;&#x7B80;&#x4ECB;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码实现"><span class="nav-text"><a href="#&#x4EE3;&#x7801;&#x5B9E;&#x73B0;" class="headerlink" title="&#x4EE3;&#x7801;&#x5B9E;&#x73B0;"></a>&#x4EE3;&#x7801;&#x5B9E;&#x73B0;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分配栈帧失败（StackOverflowError）"><span class="nav-text"><a href="#&#x5206;&#x914D;&#x6808;&#x5E27;&#x5931;&#x8D25;&#xFF08;StackOverflowError&#xFF09;" class="headerlink" title="&#x5206;&#x914D;&#x6808;&#x5E27;&#x5931;&#x8D25;&#xFF08;StackOverflowError&#xFF09;"></a>&#x5206;&#x914D;&#x6808;&#x5E27;&#x5931;&#x8D25;&#xFF08;StackOverflowError&#xFF09;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为线程分配栈上内存失败（OutOfMemoryError）"><span class="nav-text"><a href="#&#x4E3A;&#x7EBF;&#x7A0B;&#x5206;&#x914D;&#x6808;&#x4E0A;&#x5185;&#x5B58;&#x5931;&#x8D25;&#xFF08;OutOfMemoryError&#xFF09;" class="headerlink" title="&#x4E3A;&#x7EBF;&#x7A0B;&#x5206;&#x914D;&#x6808;&#x4E0A;&#x5185;&#x5B58;&#x5931;&#x8D25;&#xFF08;OutOfMemoryError&#xFF09;"></a>&#x4E3A;&#x7EBF;&#x7A0B;&#x5206;&#x914D;&#x6808;&#x4E0A;&#x5185;&#x5B58;&#x5931;&#x8D25;&#xFF08;OutOfMemoryError&#xFF09;</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -1294,6 +777,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
 
   
 
@@ -1322,6 +809,17 @@
 
 
 
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
   
 
 
