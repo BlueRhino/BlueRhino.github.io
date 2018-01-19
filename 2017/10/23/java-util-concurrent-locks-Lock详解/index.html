@@ -92,7 +92,7 @@
 <meta property="og:description" content="简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png">
-<meta property="og:updated_time" content="2017-12-23T03:03:23.000Z">
+<meta property="og:updated_time" content="2018-01-19T13:34:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java.util.concurrent.locks.Lock详解">
 <meta name="twitter:description" content="简介java.util.concurrent.locks.Lock接口（以下简称Lock）作者Doug Lea，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。">
@@ -390,25 +390,60 @@
 
       
       
+        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+          
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" rel="gallery_cjcgcjfet0008lo6h7lw76awx"
+                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" itemprop="contentUrl"/>
+              </a>
+            
+          
+
+          
+          </div>
+        </div>
+      
 
       
         <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>java.util.concurrent.locks.Lock接口（以下简称Lock）作者<a href="https://baike.baidu.com/item/Doug%20Lea/6319404?fr=aladdin" target="_blank" rel="noopener">Doug Lea</a>，对比使用synchronized关键字进行并发控制，Lock接口的实现类可以完成更灵活的加锁操作。<br>本文以下会详细介绍Lock接口相关功能，并对比Lock接口及synchronized关键字在功能上（非性能对比）的异同。<br><a id="more"></a></p>
-<h2 id="Lock接口相关功能介绍"><a href="#Lock接口相关功能介绍" class="headerlink" title="Lock接口相关功能介绍"></a>Lock接口相关功能介绍</h2><p><img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" alt=""><br>如图所示，Lock接口定义6个方法。</p>
-<p><div id="lock"></div></p>
+<h2 id="Lock接口相关功能介绍"><a href="#Lock接口相关功能介绍" class="headerlink" title="Lock接口相关功能介绍"></a>Lock接口相关功能介绍</h2><p><img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" alt=""><br>如图所示，Lock接口定义6个方法:</p>
+<div id="lock"></div>
+
 <ol>
-<li>lock<br> 尝试获取锁，如当前线程无法获取锁，则当前线程进入无法调度的休眠状态，直到获取锁。</li>
-<li>lockInterruptibly<br> 与 <a href="#lock">lock</a>相似，主要区别在于调用该方法后，如无法获取锁，则当前线程进入无法调度的休眠状态，直到出现以下两种情况：<ol>
-<li>获取锁；</li>
-<li>当前线程被其他线程中断。</li>
-</ol>
+<li>lock:尝试获取锁，如当前线程无法获取锁，则当前线程进入无法调度的休眠状态，直到获取锁。</li>
+<li>lockInterruptibly:    与 <a href="#lock">lock</a>相似，主要区别在于调用该方法后，如无法获取锁，则当前线程进入无法调度的休眠状态，直到出现以下两种情况:<br> <em>. 获取锁；
+ </em>. 当前线程被其他线程中断。</li>
+<li>tryLock:    尝试获取锁，但与lock不同，不会阻塞线程调用后立刻返回，能够获取锁返回true，否则返回false</li>
+<li>tryLock(long,TimeUnit):    尝试获取锁，可传入超时参数，在以下3种情况下返回：<ul>
+<li>在等待时间内获取锁；</li>
+<li>在等待时间被其他线程中断，抛出中断异常；</li>
+<li>等待时间结束，返回false</li>
+</ul>
 </li>
+<li>unlock:释放锁</li>
+<li>newCondition:创建一个Condition对象，此对象另开专题讨论。</li>
 </ol>
-<h2 id="Lock接口及synchronized关键字对比"><a href="#Lock接口及synchronized关键字对比" class="headerlink" title="Lock接口及synchronized关键字对比"></a>Lock接口及synchronized关键字对比</h2><p>synchronized作为Java语言的并发控制关键字，在多线程编程中十分常用，主要有三种使用方式：</p>
+<h2 id="Lock接口及synchronized关键字对比"><a href="#Lock接口及synchronized关键字对比" class="headerlink" title="Lock接口及synchronized关键字对比"></a>Lock接口及synchronized关键字对比</h2><p><strong>synchronized</strong>作为Java语言的并发控制关键字，在多线程编程中十分常用，主要有三种使用方式：</p>
 <ol>
 <li>修饰对象方法；</li>
 <li>修饰静态方法；</li>
-<li>修饰同步方法快。<br>使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定。<br>Lock接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2>未完待续</li>
+<li>修饰同步方法快。</li>
 </ol>
+<p>使用synchronized关键字可以完成对访问共享资源的代码块的显示加锁和隐式释放锁。在代码离开synchronized关键字修饰的区域后，synchronized自动释放锁定，其优势主要为：</p>
+<ol>
+<li>JVM内置锁结构，使用简单；</li>
+<li>不需要手动释放，不会出现程序员忘记释放的认为失误；</li>
+<li>可以受到JVM厂商的底层优化。<br>其主要缺点为：<ol>
+<li>性能一般低于Lock接口的实现类（随着优化的进行，这个性能差距正在极大的缩小）；</li>
+<li>灵活性不足，对于较为复杂的加锁操作无法进行支持。</li>
+</ol>
+</li>
+</ol>
+<p><strong>Lock</strong>接口将加锁及解锁操作控制权都交给程序员，这增加了锁的灵活性却也增加了出现逻辑问题的可能性。<br>由此可见，在由于当前synchronized关键字不断得到JVM优化，在仅仅需求简单同步操作时可以优先考虑synchronized关键字，在有灵活加锁操作的需求时再考虑使用Lock接口的各实现类，并且需要谨慎使用，尤其不能忘记锁的释放。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要介绍了Lock接口的各方法含义，并且简单对比了Lock及synchronized关键字的异同。后续计划继续对于synchronized关键字的实现的研究，及Lock接口各典型实现的研究。</p>
 
       
     </div>
