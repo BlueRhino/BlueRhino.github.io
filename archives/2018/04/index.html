@@ -114,7 +114,7 @@
 <meta name="description" content="My space">
 <meta property="og:type" content="website">
 <meta property="og:title" content="闲情记趣">
-<meta property="og:url" content="http://bluerhino.github.io/tags/JAVA/index.html">
+<meta property="og:url" content="http://bluerhino.github.io/archives/2018/04/index.html">
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="My space">
 <meta property="og:locale" content="zh-CN">
@@ -127,7 +127,7 @@
 
 
 
-  <link rel="canonical" href="http://bluerhino.github.io/tags/JAVA/"/>
+  <link rel="canonical" href="http://bluerhino.github.io/archives/2018/04/"/>
 
 
 
@@ -137,7 +137,7 @@
   };
 </script>
 
-  <title>标签: JAVA | 闲情记趣</title>
+  <title>归档 | 闲情记趣</title>
   
 
 
@@ -184,7 +184,7 @@
     
   
 
-  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left ">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-archive">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -325,15 +325,35 @@
   
   
   
-  <div class="post-block tag">
-
+  <div class="post-block archive">
     <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h2>JAVA<small>标签</small>
-        </h2>
-      </div>
+      <span class="archive-move-on"></span>
 
       
+      <span class="archive-page-counter">
+        
+        
+        
+          
+        
+        嗯..! 目前共计 7 篇日志。 继续努力。
+      </span>
+      
+
+      
+
+        
+        
+        
+
+        
+          
+          <div class="collection-title">
+            <h2 class="archive-year" id="archive-year-2018">2018</h2>
+          </div>
+        
+        
+
         
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
@@ -341,9 +361,9 @@
 
       <h3 class="post-title">
         
-            <a class="post-title-link" href="/2018/01/14/JAVA栈溢出/" itemprop="url">
+            <a class="post-title-link" href="/2018/04/07/深入AQS/" itemprop="url">
               
-                <span itemprop="name">JAVA栈溢出</span>
+                <span itemprop="name">深入AQS</span>
               
             </a>
         
@@ -351,9 +371,9 @@
 
       <div class="post-meta">
         <time class="post-time" itemprop="dateCreated"
-              datetime="2018-01-14T20:01:21+08:00"
-              content="2018-01-14" >
-          01-14
+              datetime="2018-04-07T11:31:54+08:00"
+              content="2018-04-07" >
+          04-07
         </time>
       </div>
 
@@ -361,15 +381,17 @@
   </article>
 
 
-      
-    </div>
 
+      
+
+    </div>
   </div>
   
   
   
 
   
+
 
 
           </div>
@@ -780,68 +802,6 @@
                 console.log('Failed to save Visitor num, with error message: ' + error.message);
               }
             });
-          } else {
-            
-              var newcounter = new Counter();
-              /* Set ACL */
-              var acl = new AV.ACL();
-              acl.setPublicReadAccess(true);
-              acl.setPublicWriteAccess(true);
-              newcounter.setACL(acl);
-              /* End Set ACL */
-              newcounter.set("title", title);
-              newcounter.set("url", url);
-              newcounter.set("time", 1);
-              newcounter.save(null, {
-                success: function(newcounter) {
-                  var $element = $(document.getElementById(url));
-                  $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
-                },
-                error: function(newcounter, error) {
-                  console.log('Failed to create');
-                }
-              });
-            
-          }
-        },
-        error: function(error) {
-          console.log('Error:' + error.code + " " + error.message);
-        }
-      });
-    }
-
-    $(function() {
-      var Counter = AV.Object.extend("Counter");
-      if ($('.leancloud_visitors').length == 1) {
-        addCount(Counter);
-      } else if ($('.post-title-link').length > 1) {
-        showTime(Counter);
-      }
-    });
-  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
-
-
-
-  
-
-  
-
-  
-
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-</body>
-</html>
-     });
           } else {
             
               var newcounter = new Counter();
