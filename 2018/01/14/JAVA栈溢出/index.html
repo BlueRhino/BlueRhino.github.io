@@ -117,12 +117,12 @@
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="Java栈溢出小记今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
-<meta property="og:updated_time" content="2018-02-24T03:39:49.000Z">
+<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
+<meta property="og:updated_time" content="2018-08-19T10:59:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JAVA栈溢出">
 <meta name="twitter:description" content="Java栈溢出小记今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。">
-<meta name="twitter:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
+<meta name="twitter:image" content="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png">
 
 
 
@@ -257,7 +257,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">9</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">10</span>
       </a>
 </li>
 
@@ -416,9 +416,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjk17bk5w000dqw6hfr1s8t7w"
+                 href="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjlkmbaku0000lz6hg0hwn6dt"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -430,7 +430,7 @@
 
       
         <h2 id="Java栈溢出小记"><a href="#Java栈溢出小记" class="headerlink" title="Java栈溢出小记"></a>Java栈溢出小记</h2><p>今天偶然有人问起如何在编写Java代码使其在运行时抛出栈溢出异常，看似简单的问题涉及到了Java虚拟机的知识，特记录于此文。<br><a id="more"></a></p>
-<h2 id="Java虚拟机结构简介"><a href="#Java虚拟机结构简介" class="headerlink" title="Java虚拟机结构简介"></a>Java虚拟机结构简介</h2><p>根据《Java虚拟机规范》<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/" target="_blank" rel="noopener">(The Java Virtual Machine Specification)</a>对于Java虚拟机运行时数据区域<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5" target="_blank" rel="noopener">(Run-Time Data Areas)</a>的描述，虚拟机运行时的描述，其构成图如下所示:<img src="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" alt=""><br>图中，PC寄存器、Java虚拟机栈及本地方法栈为各线程私有，方法区（包括运行时常量取）及堆为线程间共享的存储空间。针对问题提出的栈溢出，有两个区域与其相关，包括Java虚拟机栈及本地方法栈。查阅《Java虚拟机规范》，针对栈溢出有如下两段描述：<br>对于Java虚拟机栈</p>
+<h2 id="Java虚拟机结构简介"><a href="#Java虚拟机结构简介" class="headerlink" title="Java虚拟机结构简介"></a>Java虚拟机结构简介</h2><p>根据《Java虚拟机规范》<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/" target="_blank" rel="noopener">(The Java Virtual Machine Specification)</a>对于Java虚拟机运行时数据区域<a href="https://docs.oracle.com/javase/specs/jvms/se8/html/jvms-2.html#jvms-2.5" target="_blank" rel="noopener">(Run-Time Data Areas)</a>的描述，虚拟机运行时的描述，其构成图如下所示:<img src="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" alt=""><br>图中，PC寄存器、Java虚拟机栈及本地方法栈为各线程私有，方法区（包括运行时常量取）及堆为线程间共享的存储空间。针对问题提出的栈溢出，有两个区域与其相关，包括Java虚拟机栈及本地方法栈。查阅《Java虚拟机规范》，针对栈溢出有如下两段描述：<br>对于Java虚拟机栈</p>
 <blockquote>
 <p>The following exceptional conditions are associated with Java Virtual Machine stacks:</p>
 <ul>
@@ -592,7 +592,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -617,7 +617,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -682,7 +682,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1064,6 +1064,13 @@
   
 
   
+  
+
+  
+  
+
+  
+
 
   
   

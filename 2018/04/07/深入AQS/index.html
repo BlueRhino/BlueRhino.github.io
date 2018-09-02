@@ -117,12 +117,12 @@
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="简介AbstractQueuedSynchronizer一般简称AQS，是位于JUC包中的重要工具类，包括ReentrantLock、CountDownLatch等众多提供阻塞方法的类都是基于AQS进行编写的，理解AQS对于理解JUC包中许多类的实现都有极大的帮助。本文通过阅读AQS源码的方式，学习AQS实现的原理及技巧。下文主要包括以下几方面：    AQS总览； AQS主要功能； 使用示例-排">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png">
-<meta property="og:updated_time" content="2018-06-03T09:01:54.000Z">
+<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png">
+<meta property="og:updated_time" content="2018-08-19T10:59:48.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入AQS">
 <meta name="twitter:description" content="简介AbstractQueuedSynchronizer一般简称AQS，是位于JUC包中的重要工具类，包括ReentrantLock、CountDownLatch等众多提供阻塞方法的类都是基于AQS进行编写的，理解AQS对于理解JUC包中许多类的实现都有极大的帮助。本文通过阅读AQS源码的方式，学习AQS实现的原理及技巧。下文主要包括以下几方面：    AQS总览； AQS主要功能； 使用示例-排">
-<meta name="twitter:image" content="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png">
+<meta name="twitter:image" content="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png">
 
 
 
@@ -257,7 +257,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">9</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">10</span>
       </a>
 </li>
 
@@ -423,9 +423,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjk17bk65000oqw6hrgqmnh4r"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjlkmbalk000jlz6h6li3raoj"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -443,7 +443,7 @@
 <li>使用示例-排它锁<a id="more"></a>
 </li>
 </ol>
-<h2 id="AQS总览"><a href="#AQS总览" class="headerlink" title="AQS总览"></a>AQS总览</h2><p>AQS在<code>java.util.concurrent.locks</code>包中，其UML图为：<br><img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png" alt=""><br>可见AQS继承于<code>AbstractOwnableSynchronizer</code>,并且其实现中包含了<code>Node</code>及<code>ConditionObject</code>两个内部类。<code>AbstractOwnableSynchronizer</code>类功能较为简单，不包括构造函数外只提供了两个方法：<code>setExclusiveOwnerThread</code>及<code>getExclusiveOwnerThread</code>，用于设置和获取当前对象所属的线程，需要注意在设置及获取当前对象所属线程时，该类并没有加锁使用时需要调用人员自行保证数据的一致性。  </p>
+<h2 id="AQS总览"><a href="#AQS总览" class="headerlink" title="AQS总览"></a>AQS总览</h2><p>AQS在<code>java.util.concurrent.locks</code>包中，其UML图为：<br><img src="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" alt=""><br>可见AQS继承于<code>AbstractOwnableSynchronizer</code>,并且其实现中包含了<code>Node</code>及<code>ConditionObject</code>两个内部类。<code>AbstractOwnableSynchronizer</code>类功能较为简单，不包括构造函数外只提供了两个方法：<code>setExclusiveOwnerThread</code>及<code>getExclusiveOwnerThread</code>，用于设置和获取当前对象所属的线程，需要注意在设置及获取当前对象所属线程时，该类并没有加锁使用时需要调用人员自行保证数据的一致性。  </p>
 <h2 id="AQS主要功能"><a href="#AQS主要功能" class="headerlink" title="AQS主要功能"></a>AQS主要功能</h2><p>AQS类的文档中说明其主要作用为：  </p>
 <blockquote>
 <p>Provides a framework for implementing blocking locks and related synchronizers (semaphores, events, etc) that rely on first-in-first-out (FIFO) wait queues.  </p>
@@ -462,8 +462,8 @@
 <p>该类实现了一个互斥锁，实现了<code>Lock</code>接口，在实现过程中主要通过调用内部类<code>Sync</code>的对象<code>sync</code>完成相关工作。重点观察<code>Sync</code>，<code>Sync</code>继承了了<code>AbstractQueuedSynchronizer</code>，并实现了上文提到的5个方法中的3个，即<code>isHeldExclusively</code>、<code>tryAcquire</code>及<code>tryRelease</code>三个方法。  </p>
 <h3 id="加锁过程"><a href="#加锁过程" class="headerlink" title="加锁过程"></a>加锁过程</h3><p>当前线程调用<code>lock</code>方法请求锁时，实际上是调用了AQS的<code>acquire</code>函数，该函数代码为：  </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</span><br><span class="line">            acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</span><br><span class="line">            selfInterrupt();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>而该函数流程为：<br><img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer_acquire.png" alt=""> </p>
-<h4 id="tryAcquire函数实现"><a href="#tryAcquire函数实现" class="headerlink" title="tryAcquire函数实现"></a><code>tryAcquire</code>函数实现</h4><p>其中<code>tryAcquire</code>函数为示例类<code>Mutex</code>实现， 根据以上代码该函数实现时调用<code>compareAndSetState</code>函数。其功能为使用CAS操作<strong>原子</strong>的设置对象中一个名为<code>state</code>的<code>int</code>型变量，传入两个<code>int</code>类型参数，分别为预期值及设置后的值，流程如下：<br> <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/compareAndSetState.png" alt=""><br><code>compareAndSetState</code>是AQS关键函数之一，查看<code>compareAndSetState</code>源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">compareAndSetState</span><span class="params">(<span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// See below for intrinsics setup to support this</span></span><br><span class="line">        <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, expect, update);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>而该函数流程为：<br><img src="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer_acquire.png" alt=""> </p>
+<h4 id="tryAcquire函数实现"><a href="#tryAcquire函数实现" class="headerlink" title="tryAcquire函数实现"></a><code>tryAcquire</code>函数实现</h4><p>其中<code>tryAcquire</code>函数为示例类<code>Mutex</code>实现， 根据以上代码该函数实现时调用<code>compareAndSetState</code>函数。其功能为使用CAS操作<strong>原子</strong>的设置对象中一个名为<code>state</code>的<code>int</code>型变量，传入两个<code>int</code>类型参数，分别为预期值及设置后的值，流程如下：<br> <img src="http://qiniudns.bluerhino.top/JAVA/JUC/compareAndSetState.png" alt=""><br><code>compareAndSetState</code>是AQS关键函数之一，查看<code>compareAndSetState</code>源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">compareAndSetState</span><span class="params">(<span class="keyword">int</span> expect, <span class="keyword">int</span> update)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// See below for intrinsics setup to support this</span></span><br><span class="line">        <span class="keyword">return</span> unsafe.compareAndSwapInt(<span class="keyword">this</span>, stateOffset, expect, update);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
 <p>从代码可以发现<code>compareAndSetState</code>最终调用了<code>sun.misc.Unsafe</code>类的<code>compareAndSwapInt</code>方法，该函数可以原子性的设置属性，保证线程安全，该方法前两个参数分别为对象地址及偏移量，对象地址执行需要修改的对象，偏移量指定需要修改的整数类型数据在该对象中的内存地址，该函数实现是在Native方法中实现，查看该方法在OpenJdk9中的实现为(代码在：<strong>hotspot/src/share/vm/primsunsafe.cpp</strong>中)：</p>
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">UNSAFE_ENTRY(jint, Unsafe_CompareAndExchangeInt(JNIEnv *env, jobject unsafe, jobject obj, jlong offset, jint e, jint x)) &#123;</span><br><span class="line">  oop p = JNIHandles::resolve(obj);</span><br><span class="line">  jint* addr = (jint *) index_oop_from_field_offset_long(p, offset);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (jint)(Atomic::cmpxchg(x, addr, e));</span><br><span class="line">&#125; UNSAFE_END</span><br></pre></td></tr></table></figure>
 <p>其中主要为调用<code>Atomic::cmpxchg</code>方法，该方法在不同平台实现略有不同，以下为mac平台实现：</p>
@@ -497,7 +497,7 @@
 <li>如果获取锁失败开始调用<code>shouldParkAfterFailedAcquire</code>函数  </li>
 </ol>
 <p>调用<code>shouldParkAfterFailedAcquire</code>函数需要传入参数包括当前节点及当前节点的前置结点，其逻辑如下：<br><!--  
-![](http://p2amq694a.bkt.clouddn.com/JAVA/JUC/shouldParkAfterFailedAcquire.png?imageView2/0/w/600/h/600/q/100) --><br><img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/shouldParkAfterFailedAcquire.png" alt=""><br><code>shouldParkAfterFailedAcquire</code>函数在前置节点状态不为<code>Node.SIGNAL</code>的状态下主要完成两件事：移除队列中所有状态值大于0的节点（如被取消的节点）；将前置节点状态设置为<code>Node.SIGNAL</code>。<br>继续<code>acquireQueued</code>函数的分析，在调用<code>shouldParkAfterFailedAcquire</code>函数后，若<code>shouldParkAfterFailedAcquire</code>返回false，则继续刚才的循环，知道获取锁或<code>shouldParkAfterFailedAcquire</code>函数返回true。由于前一次的函数调用将前置节点状态置为了<code>Node.SIGNAL</code>，再次调用<code>shouldParkAfterFailedAcquire</code>大概率情况下会返回true。<br>当<code>shouldParkAfterFailedAcquire</code>函数返回true后，<code>acquireQueued</code>函数继续调用<code>parkAndCheckInterrupt</code>函数。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        LockSupport.park(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">return</span> Thread.interrupted();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+![](http://qiniudns.bluerhino.top/JAVA/JUC/shouldParkAfterFailedAcquire.png?imageView2/0/w/600/h/600/q/100) --><br><img src="http://qiniudns.bluerhino.top/JAVA/JUC/shouldParkAfterFailedAcquire.png" alt=""><br><code>shouldParkAfterFailedAcquire</code>函数在前置节点状态不为<code>Node.SIGNAL</code>的状态下主要完成两件事：移除队列中所有状态值大于0的节点（如被取消的节点）；将前置节点状态设置为<code>Node.SIGNAL</code>。<br>继续<code>acquireQueued</code>函数的分析，在调用<code>shouldParkAfterFailedAcquire</code>函数后，若<code>shouldParkAfterFailedAcquire</code>返回false，则继续刚才的循环，知道获取锁或<code>shouldParkAfterFailedAcquire</code>函数返回true。由于前一次的函数调用将前置节点状态置为了<code>Node.SIGNAL</code>，再次调用<code>shouldParkAfterFailedAcquire</code>大概率情况下会返回true。<br>当<code>shouldParkAfterFailedAcquire</code>函数返回true后，<code>acquireQueued</code>函数继续调用<code>parkAndCheckInterrupt</code>函数。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        LockSupport.park(<span class="keyword">this</span>);</span><br><span class="line">        <span class="keyword">return</span> Thread.interrupted();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
 <p>该函数使用到了Jdk(从1.6开始)中提供的工具类方法<code>LockSupport.park(this)</code>，代码为：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">park</span><span class="params">(Object blocker)</span> </span>&#123;</span><br><span class="line">        Thread t = Thread.currentThread();</span><br><span class="line">        setBlocker(t, blocker);</span><br><span class="line">        UNSAFE.park(<span class="keyword">false</span>, <span class="number">0L</span>);</span><br><span class="line">        setBlocker(t, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
 <p>该函数作用设置当前线程的阻塞对象，并且调用<code>UNSAFE.park(false, 0L)</code>函数将当前线程设置为阻塞状态，让出CPU。<code>UNSAFE.park</code>函数在JVM的native方法中实现，查看JVM源码在Linux平台该函数最终主要使用了<code>pthread_cond_wait</code>及<code>pthread_cond_signal</code>两个函数进行线程的阻塞和唤醒，其中具体实现本文不再赘述。此处需要注意理论上<code>pthread_cond_signal</code>函数的调用仅仅会唤醒一个线程，不会出现<strong>惊群现象</strong>（即同时唤醒多个线程），但是在某些平台可能无法完全保证，所以<code>LockSupport.park</code>函数说明了三种停止阻塞并继续执行的情况：  </p>
 <ol>
@@ -660,7 +660,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -685,7 +685,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -750,7 +750,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1132,6 +1132,13 @@
   
 
   
+  
+
+  
+  
+
+  
+
 
   
   

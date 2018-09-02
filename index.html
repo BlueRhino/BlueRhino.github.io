@@ -253,7 +253,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">9</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">10</span>
       </a>
 </li>
 
@@ -298,6 +298,323 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2018/09/02/限流器及Guava实现分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="BlueRhino">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/favicon.ico">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="闲情记趣">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/02/限流器及Guava实现分析/" itemprop="url">限流器及Guava实现分析</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-02T16:51:54+08:00">2018-09-02</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/开源工具/" itemprop="url" rel="index"><span itemprop="name">开源工具</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/09/02/限流器及Guava实现分析/" class="leancloud_visitors" data-flag-title="限流器及Guava实现分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h1><p><a href="https://en.wikipedia.org/wiki/Rate_limiting?_blank" target="_blank" rel="noopener">限流</a>一词常用于计算机网络之中，定义如下：</p>
+<blockquote>
+<p>In computer networks, rate limiting is used to control the rate of traffic sent or received by a network interface controller and is used to prevent DoS attacks.</p>
+</blockquote>
+<p>通过控制数据的网络数据的发送或接收速率来防止可能出现的DOS攻击。而实际的软件服务过程中，限流也可用于API服务的保护。由于提供服务的计算机资源(包括CPU、内存、磁盘及网络带宽等)是有限的，则其提供的API服务的QPS也是有限的，限流工具就是通过限流算法对API访问进行限制，保证服务不会超过其能承受的负载压力。<br>本文主要涉及内容包括：  </p>
+<ul>
+<li>常用限流算法的简单介绍及比较</li>
+<li>Guava包中限流工具的实现分析  </li>
+</ul>
+<h1 id="常用限流算法"><a href="#常用限流算法" class="headerlink" title="常用限流算法"></a>常用限流算法</h1><p>援引wiki中关于<a href="https://en.wikipedia.org/wiki/Rate_limiting?_blank" target="_blank" rel="noopener">限流</a>的Algorithms一小节的说明，常用的限流算法主要包括：  </p>
+<ol>
+<li>Token bucket-令牌桶</li>
+<li>Leaky bucket-漏桶</li>
+<li>Fixed window counter-固定窗口计数</li>
+<li>Sliding window log-滑动窗口日志</li>
+<li>Sliding window counter-滑动窗口计数<br>以上几种方式其实可以简单的分为计数算法、漏桶算法和令牌桶算法。  </li>
+</ol>
+<h2 id="计数限流算法"><a href="#计数限流算法" class="headerlink" title="计数限流算法"></a>计数限流算法</h2><p>无论固定窗口还是滑动窗口核心均是对请求进行计数，区别仅仅在于对于计数时间区间的处理。  </p>
+<h3 id="固定窗口计数"><a href="#固定窗口计数" class="headerlink" title="固定窗口计数"></a>固定窗口计数</h3><h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4><p>固定窗口计数法思想比较简单，只需要确定两个参数：计数周期T及周期内最大访问（调用）数N。请求到达时使用以下流程进行操作：<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E9%99%90%E6%B5%81%E5%99%A8%E7%AE%97%E6%B3%950.png" alt="">  </p>
+<p>固定窗口计数实现简单，并且只需要记录上一个周期起始时间与周期内访问总数，几乎不消耗额外的存储空间。  </p>
+<h4 id="算法缺陷"><a href="#算法缺陷" class="headerlink" title="算法缺陷"></a>算法缺陷</h4><p>固定窗口计数缺点也非常明显，在进行周期切换时，上一个周期的访问总数会立即置为0，这可能导致在进行周期切换时可能出现流量突发，如下图所示<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E5%9B%BA%E5%AE%9A%E7%AA%97%E5%8F%A3%E8%AE%A1%E6%95%B0%E7%BC%BA%E7%82%B9.png" alt=""><br>简化模型，假设在两个周期T0中a时刻有n1个访问同时到达，周期T1中b时刻有n2个访问同时到达，且n1和n2均小于设定的最高访问次数N（否则会触发限流）。<br>根据以上假设可以推断，限流器不会限流，n1+n2次访问均可以通过。现假设a，b两时刻之间时间差为t，则可以得出以下关系:  </p>
+<script type="math/tex; mode=display">
+\left\{
+\begin{aligned}
+n1 \le N \\
+n2 \le N \\
+(n1+n2) \le 2N \\
+\end{aligned}
+\right.</script><p>根据观察可发现，在$t$的时间内，出现了$n1+n2$次请求，且$n1+n2$是可能大于$N$的，所以在实际使用过程中，固定窗口计数器存在突破限额N的可能。<br>举例，限制QPS为10，某用户在周期切换的前后的0.1秒内，分两次发送10次请求，根据算法规则此20次请求可通过限流器，则0.1面秒请求数20，超过每秒最多10次请求的限制。</p>
+<h3 id="滑动窗口计数"><a href="#滑动窗口计数" class="headerlink" title="滑动窗口计数"></a>滑动窗口计数</h3><p>为解决固定窗口计数带来的周期切换处流量突发问题，可以使用滑动窗口计数。滑动窗口计算本质上也是固定窗口计数，区别在于将计数周期进行细化。</p>
+<h4 id="实现原理-1"><a href="#实现原理-1" class="headerlink" title="实现原理"></a>实现原理</h4><p>滑动窗口计数法与股固定窗口计数法相比较，除了计数周期T及周期内最大访问（调用）数N两个参数，增加一个参数M，用于设置周期T内的滑动窗口数。限流流程如下：<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%B5%81%E7%A8%8B.png" alt=""><br>滑动窗口计数在固定窗口计数记录数据基础上，需要增加一个长度为M的计数数组，用于记录在窗口滑动过程中各窗口访问数据。其流程示例如下：<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%A4%BA%E4%BE%8B.png" alt=""></p>
+<h4 id="周期切换问题"><a href="#周期切换问题" class="headerlink" title="周期切换问题"></a>周期切换问题</h4><p>滑动窗口针对周期进行了细分，不存在周期到后计数直接重置为0的情况，故不会出现跨周期的流量限制问题。</p>
+<h2 id="非计数限流法"><a href="#非计数限流法" class="headerlink" title="非计数限流法"></a>非计数限流法</h2><h3 id="漏桶限流"><a href="#漏桶限流" class="headerlink" title="漏桶限流"></a>漏桶限流</h3><h4 id="实现原理-2"><a href="#实现原理-2" class="headerlink" title="实现原理"></a>实现原理</h4><p>漏桶限流算法的实现原理在<a href="https://en.wikipedia.org/wiki/Leaky_bucket" target="_blank" rel="noopener">wiki</a>有详细说明，引用其原理图：<img src="https://upload.wikimedia.org/wikipedia/commons/c/c4/Leaky_bucket_analogy.JPG" alt=""><br>简单说明为：人为设定漏桶流出速度及漏桶的总容量，在请求到达时判断当前漏桶容量是否已满，不满则可将请求存入桶中，否则抛弃请求。程序以设定的速率取出请求进行处理。<br>根据描述，需要确定参数为漏桶流出速度r及漏桶容量N，流程如下：<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BC%8F%E6%A1%B6%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png" alt=""></p>
+<h4 id="算法特点"><a href="#算法特点" class="headerlink" title="算法特点"></a>算法特点</h4><p>漏桶算法主要特点在于可以保证无论收到请求的速率如何，真正抵达服务方接口的请求速率最大为r，能够对输入的请求进行平滑处理。<br>漏桶算法的缺点也非常明显，由于其只能以特定速率处理请求，则如何确定该速率就是核心问题，如果速率设置太小则会浪费性能资源，设置太大则会造成资源不足。并且由于速率的设置，无论输入速率如何波动，均不会体现在服务端，即使资源有空余，对于突发请求也无法及时处理，故对有突发请求处理需求时，不宜选择该方法。</p>
+<h3 id="令牌桶限流"><a href="#令牌桶限流" class="headerlink" title="令牌桶限流"></a>令牌桶限流</h3><h4 id="实现原理-3"><a href="#实现原理-3" class="headerlink" title="实现原理"></a>实现原理</h4><p>令牌桶限流的实现原理在<a href="https://en.wikipedia.org/wiki/Token_bucket" target="_blank" rel="noopener">wiki</a>有详细说明。简单总结为：设定令牌桶中添加令牌的速率，并且设置桶中最大可存储的令牌，当请求到达时，向桶中请求令牌（根据应用需求，可能为1个或多个），若令牌数量满足要求，则删除对应数量的令牌并通过当前请求，若桶中令牌数不足则触发限流规则。<br>根据描述需要设置的参数为，令牌添加速率r，令牌桶中最大容量N，流程如下：<img src="http://qiniudns.bluerhino.top/JAVA/guava/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png" alt=""></p>
+<h4 id="算法特点-1"><a href="#算法特点-1" class="headerlink" title="算法特点"></a>算法特点</h4><p>令牌桶算法通过设置令牌放入速率可以控制请求通过的平均速度，且由于设置的容量为N的桶对令牌进行缓存，可以容忍一定流量的突发。</p>
+<h2 id="算法比较"><a href="#算法比较" class="headerlink" title="算法比较"></a>算法比较</h2><p>以上提到四种算法，本小节主要对四种算法做简单比较算法进行对比。  </p>
+<style>
+table th {
+    width: 100px;
+}
+</style>
+
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>算法名称</th>
+<th>需要确定参数</th>
+<th>实现简介</th>
+<th>空间复杂度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定窗口计数</td>
+<td>计数周期T<br>周期内最大访问数N</td>
+<td>使用计数器在周期内累加访问次数，达到最大次数后出发限流策略</td>
+<td>O(1)，仅需要记录周期内访问次数及周期开始时间</td>
+<td>周期切换时可能出现访问次数超过限定值</td>
+</tr>
+<tr>
+<td>滑动窗口计数</td>
+<td>计数周期T<br>周期内最大访问数N<br>滑动窗口数M</td>
+<td>将时间周期分为M个小周期，分别记录每个小周期内访问次数，并且根据时间滑动删除过期的小周期</td>
+<td>O(M)，需要记录每个小周期中的访问数量</td>
+<td>解决固定窗口算法周期切换时的访问突发问题</td>
+</tr>
+<tr>
+<td>漏桶算法</td>
+<td>漏桶流出速度r<br>漏桶容量N<br></td>
+<td>服务到达时直接放入漏桶，如当前容量达到N，则触发限流侧率，程序以r的速度在漏桶中获取访问请求，知道漏桶为空</td>
+<td>O(1)，仅需要记录当前漏桶中容量</td>
+<td>平滑流量，保证服务请求到达服务方的速度恒定</td>
+</tr>
+<tr>
+<td>令牌桶算法</td>
+<td>令牌产生速度r<br>令牌桶容量N<br></td>
+<td>程序以r的速度向令牌桶中增加令牌，直到令牌桶满，请求到达时向令牌桶请求令牌，如有满足需求的令牌则通过请求，否则触发限流策略</td>
+<td>O(1)，仅需要记录当前令牌桶中令牌数</td>
+<td>能够在限流的基础上，处理一定量的突发请求</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="Guava包中限流工具的实现分析"><a href="#Guava包中限流工具的实现分析" class="headerlink" title="Guava包中限流工具的实现分析"></a>Guava包中限流工具的实现分析</h1><h2 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h2><p>上文简单介绍了常用的限流算法，在JAVA软件开发过程中可使用Guava包中的限流工具进行服务限流。Guava包中限流工具类图如下所示：<img src="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" alt=""><br>其中<code>RateLimiter</code>类为限流的核心类，其为<code>public</code>的抽象类，<code>RateLimiter</code>有一个实现类<code>SmoothRateLimiter</code>，根据不同消耗令牌的策略<code>SmoothRateLimiter</code>又有两个具体实现类<code>SmoothBursty</code>和<code>SmoothWarmingUp</code>。<br>在实际使用过程中一般直接使用<code>RateLimiter</code>类，其他类对用户是透明的。<code>RateLimiter</code>类的设计使用了类似BUILDER模式的小技巧，并做了一定的调整。<br>通过<code>RateLimiter</code>类图可见，<code>RateLimiter</code>类不仅承担了具体实现类的创建职责，同时也确定了被创建出的实际类可提供的方法。标准创建者模式UML图如下所示（引用自百度百科）<img src="https://gss3.bdstatic.com/-Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=7de5856df4246b606f03ba268a917129/838ba61ea8d3fd1f82d87904324e251f95ca5f3f.jpg" alt=""><br><code>RateLimiter</code>类即承担了builder的职责，也承担了Product的职责。</p>
+<h2 id="简单使用示例"><a href="#简单使用示例" class="headerlink" title="简单使用示例"></a>简单使用示例</h2><p>在实际的代码编写过程中，对GUAVA包限流工具的使用参考以下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> RateLimiter rateLimiter = RateLimiter.create(<span class="number">2.0</span>); <span class="comment">// rate is "2 permits per second"</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">submitTasks</span><span class="params">(List&lt;Runnable&gt; tasks, Executor executor)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (Runnable task : tasks) &#123;</span><br><span class="line">    rateLimiter.acquire(); <span class="comment">// may wait</span></span><br><span class="line">    executor.execute(task);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>以上代码摘自GUAVA包<code>RateLimiter</code>类的说明文档，首先使用<code>create</code>函数创建限流器，指定每秒生成2个令牌，在需要调用服务时使用<code>acquire</code>函数或取令牌。</p>
+<h2 id="RateLimiter实现分析"><a href="#RateLimiter实现分析" class="headerlink" title="RateLimiter实现分析"></a>RateLimiter实现分析</h2><p>根据代码示例，抽象类<code>RateLimiter</code>由于承担了Product的职责，其已经确定了暴露给编程人员使用的API函数，其中主要实现的核心函数为<code>create</code>及<code>acquire</code>。因此由此为入口进行分析。</p>
+<h3 id="create函数分析"><a href="#create函数分析" class="headerlink" title="create函数分析"></a>create函数分析</h3><p><code>create</code>函数具有两个个重载，根据不同的重载可能创建不同的<code>RateLimiter</code>具体实现子类。目前可返回的实现子类包括<code>SmoothBursty</code>及<code>SmoothWarmingUp</code>两种，具体不同下文详细分析。</p>
+<h3 id="acquire函数分析"><a href="#acquire函数分析" class="headerlink" title="acquire函数分析"></a>acquire函数分析</h3><p><code>acquire</code>函数也具有两个重载类，但分析过程仅仅需要关系具有整形参数的函数重载即可，无参数的函数仅仅是<code>acquire(1)</code>的简便写法。<br>在<code>acquire(int permits)</code>函数中主要完成三件事：  </p>
+<ol>
+<li>预分配授权数量，此函数返回需要等待的时间，可能为0；</li>
+<li>根据等待时间进行休眠；</li>
+<li>以秒为单位，返回获取授权消耗的时间。  </li>
+</ol>
+<p>完成以上工作的过程中，<code>RateLimiter</code>类确定了获取授权的过程骨架并且实现了一些通用的方法，这些通用方法中会调用为实现的抽象方法，开发人员根据不同的算法需求可实现特定子类对抽象方法进行覆盖。其调用流程如下图：<img src="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter-acquire.png" alt=""><br>其中橙色块中<code>reserveEarliestAvailable</code>方法即为需要子类进行实现的，下文以该函数为核心，分析<code>RateLimiter</code>类的子类是如何实现该方法的。</p>
+<h2 id="子类实现分析"><a href="#子类实现分析" class="headerlink" title="子类实现分析"></a>子类实现分析</h2><h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>根据上文的类图可见，<code>RateLimiter</code>类在GUAVA包中的直接子类仅有<code>SmoothRateLimiter</code>，故以<code>reserveEarliestAvailable</code>函数为入口研究其具体实现，而在代码实现的过程中需要使用<code>SmoothRateLimiter</code>类中的属性，现将类中各属性罗列出来：  </p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>属性名称</th>
+<th>属性说明</th>
+<th>是否为静态属性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>storedPermits</td>
+<td>当前令牌桶中令牌数</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td>maxPermits</td>
+<td>令牌桶中最大令牌数</td>
+<td>否</td>
+</tr>
+<tr>
+<td>3</td>
+<td>stableIntervalMicros</td>
+<td>两个令牌产生的时间间隔</td>
+<td>否</td>
+</tr>
+<tr>
+<td>4</td>
+<td>nextFreeTicketMicros</td>
+<td>下一次有空闲令牌产生的时刻</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>reserveEarliestAvailable</code>源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">long</span> <span class="title">reserveEarliestAvailable</span><span class="params">(<span class="keyword">int</span> requiredPermits, <span class="keyword">long</span> nowMicros)</span> </span>&#123;</span><br><span class="line">  resync(nowMicros);</span><br><span class="line">  <span class="keyword">long</span> returnValue = nextFreeTicketMicros;</span><br><span class="line">  <span class="keyword">double</span> storedPermitsToSpend = min(requiredPermits, <span class="keyword">this</span>.storedPermits);</span><br><span class="line">  <span class="keyword">double</span> freshPermits = requiredPermits - storedPermitsToSpend;</span><br><span class="line">  <span class="keyword">long</span> waitMicros =</span><br><span class="line">      storedPermitsToWaitTime(<span class="keyword">this</span>.storedPermits, storedPermitsToSpend)</span><br><span class="line">          + (<span class="keyword">long</span>) (freshPermits * stableIntervalMicros);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.nextFreeTicketMicros = LongMath.saturatedAdd(nextFreeTicketMicros, waitMicros);</span><br><span class="line">  <span class="keyword">this</span>.storedPermits -= storedPermitsToSpend;</span><br><span class="line">  <span class="keyword">return</span> returnValue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过<code>reserveEarliestAvailable</code>的函数名称可以知道，该函数能够返回令牌可用的最早时间。函数需要的输入参数有需求的令牌数<code>requiredPermits</code>，当前时刻<code>nowMicros</code>。进入函数后，首先调用名为<code>resync</code>的函数：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">resync</span><span class="params">(<span class="keyword">long</span> nowMicros)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// if nextFreeTicket is in the past, resync to now</span></span><br><span class="line">  <span class="keyword">if</span> (nowMicros &gt; nextFreeTicketMicros) &#123;</span><br><span class="line">    <span class="keyword">double</span> newPermits = (nowMicros - nextFreeTicketMicros) / coolDownIntervalMicros();</span><br><span class="line">    storedPermits = min(maxPermits, storedPermits + newPermits);</span><br><span class="line">    nextFreeTicketMicros = nowMicros;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>函数逻辑比较简单，首先获取<code>nextFreeTicketMicros</code>，该值在上表中已经说明，表示下一次有空闲令牌产生的时刻，如果当前时刻小于等于<code>nextFreeTicketMicros</code>，说明在当前时刻不可能有新的令牌产生，则直接返回。若当前时刻大于<code>nextFreeTicketMicros</code>，则完成以下工作：  </p>
+<ol>
+<li>计算到当前时刻新产生的令牌数，其中涉及一个名为<code>coolDownIntervalMicros</code> 的函数，该函数返回创建一个新令牌需要的冷却时间（注：该函数在当前类中并未实现，具体实现下文说明）；</li>
+<li>更新<code>storedPermits</code>属性，取产生的令牌和最大可存储令牌之间的最小值；</li>
+<li>将<code>nextFreeTicketMicros</code>属性置为当前时刻。  </li>
+</ol>
+<p>可见，<code>resync</code>函数主要功能在于计算新产生的令牌数，并更新<code>nextFreeTicketMicros</code>属性，<code>nextFreeTicketMicros</code>属性取值是当前时刻和<code>nextFreeTicketMicros</code>属性的原始值中最大的一个。<br>完成<code>resync</code>函数的调用后，使用<code>returnValue</code>变量记录更新令牌后的最近可用时间（即上文更新后的<code>nextFreeTicketMicros</code>属性）。<br>使用<code>storedPermitsToSpend</code>变量记录需要消耗以存储的令牌数，其取值为请求令牌数和当前存储令牌数之间的最小值。<br>使用<code>freshPermits</code>变量记录需要刷新的令牌数，其实现是用需求的令牌数减去之前计算的<code>storedPermitsToSpend</code>变量，可见<code>freshPermits</code>变量取值为需求令牌数与已存储令牌数之间的差值，当需求令牌数小于已存储令牌数是则为0。<br>后续为该函数核心，计算需要等待的时间，计算等待时间主要分为两个部分：消耗已经存储的令牌需要的时间及生成新令牌的时间，其中<code>storedPermitsToWaitTime</code>函数用于计算消耗已经存储的令牌需要的时间，该函数也是抽象函数，后文具体分析子类实现。<br>完成等待时间的计算后，程序更新<code>nextFreeTicketMicros</code>属性，将最近可用时间与需要等待的时间相加。<br>最后在更新存储的令牌数，将需要消耗额令牌数减去。</p>
+<h3 id="实现逻辑特点"><a href="#实现逻辑特点" class="headerlink" title="实现逻辑特点"></a>实现逻辑特点</h3><p>根据以上的代码分析可以发现，GUAVA对于令牌桶的实现跟理论有一点点小的区别。其当前一次的请求消耗的令牌数并不会影响本次请求的等待时间，而是会影响下一次请求的等待时间。<br>根据以上分析，当一次请求到达，最近可用时间返回当前时间和上一次请求计算的最近可用时间的最大值，而本次请求需要的令牌数会更新下一次的最近可用时间。在这样的设计下，如果每秒产生一个令牌，第一请求需求10个令牌，则当第一次请求调用<code>acquire</code>方法时能够立即返回，而下一次请求（无论需要多少令牌）均需要等待到第一个请求之后的10秒以后，第三次请求等待时间则取决于第二次需求了多少令牌。这也是函数名称中“reserve”的含义。</p>
+<h3 id="抽象函数分析"><a href="#抽象函数分析" class="headerlink" title="抽象函数分析"></a>抽象函数分析</h3><p>在以上文代码分析中出现了两个抽象函数<code>coolDownIntervalMicros</code>及<code>storedPermitsToWaitTime</code>，现分析这两个抽象函数。</p>
+<h4 id="coolDownIntervalMicros函数"><a href="#coolDownIntervalMicros函数" class="headerlink" title="coolDownIntervalMicros函数"></a><code>coolDownIntervalMicros</code>函数</h4><p><code>coolDownIntervalMicros</code>函数在代码中已经有说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Returns the number of microseconds during cool down that we have to wait to get a new permit.</span><br></pre></td></tr></table></figure></p>
+<p>主要含义为生成一个令牌需要消耗的时间，该函数主要应用于计算当前时间可产生的令牌数。根据上文的UML图<code>SmoothRateLimiter</code>类有两个子类<code>SmoothBursty</code>及<code>SmoothWarmingUp</code>。<br><code>SmoothBursty</code>类中对于<code>coolDownIntervalMicros</code>函数的实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">coolDownIntervalMicros</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> stableIntervalMicros;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>可见实现非常简单，仅仅只是返回<code>stableIntervalMicros</code>属性，即产生两个令牌需要的时间间隔。<br><code>SmoothWarmingUp</code>类中对于<code>coolDownIntervalMicros</code>函数的实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">double</span> <span class="title">coolDownIntervalMicros</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> warmupPeriodMicros / maxPermits;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中<code>maxPermits</code>属性上文已经出现过，表示当前令牌桶的最大容量。<code>warmupPeriodMicros</code>属性属于<code>SmoothWarmingUp</code>类的特有属性，表示令牌桶中令牌从0到<code>maxPermits</code>需要经过的时间，故<code>warmupPeriodMicros / maxPermits</code>表示在令牌数量达到<code>maxPermits</code>之前的令牌产生时间间隔。</p>
+<h3 id="storedPermitsToWaitTime函数"><a href="#storedPermitsToWaitTime函数" class="headerlink" title="storedPermitsToWaitTime函数"></a><code>storedPermitsToWaitTime</code>函数</h3><p><code>storedPermitsToWaitTime</code>函数在代码中已经有说明：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Translates a specified portion of our currently stored permits which we want to spend/acquire,</span><br><span class="line">into a throttling time. Conceptually, this evaluates the integral of the underlying function we</span><br><span class="line">use, for the range of [(storedPermits - permitsToTake), storedPermits]</span><br></pre></td></tr></table></figure></p>
+<p>主要表示消耗存储在令牌桶中的令牌需要的时间。<br><code>SmoothBursty</code>类中对于<code>storedPermitsToWaitTime</code>函数的实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">storedPermitsToWaitTime</span><span class="params">(<span class="keyword">double</span> storedPermits, <span class="keyword">double</span> permitsToTake)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0L</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>直接返回0，表示消耗令牌不需要时间。<br><code>SmoothBursty</code>类中对于<code>storedPermitsToWaitTime</code>函数的实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">long</span> <span class="title">storedPermitsToWaitTime</span><span class="params">(<span class="keyword">double</span> storedPermits, <span class="keyword">double</span> permitsToTake)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">double</span> availablePermitsAboveThreshold = storedPermits - thresholdPermits;</span><br><span class="line">  <span class="keyword">long</span> micros = <span class="number">0</span>;</span><br><span class="line">  <span class="comment">// measuring the integral on the right part of the function (the climbing line)</span></span><br><span class="line">  <span class="keyword">if</span> (availablePermitsAboveThreshold &gt; <span class="number">0.0</span>) &#123;</span><br><span class="line">    <span class="keyword">double</span> permitsAboveThresholdToTake = min(availablePermitsAboveThreshold, permitsToTake);</span><br><span class="line">    <span class="comment">// TODO(cpovirk): Figure out a good name for this variable.</span></span><br><span class="line">    <span class="keyword">double</span> length =</span><br><span class="line">        permitsToTime(availablePermitsAboveThreshold)</span><br><span class="line">            + permitsToTime(availablePermitsAboveThreshold - permitsAboveThresholdToTake);</span><br><span class="line">    micros = (<span class="keyword">long</span>) (permitsAboveThresholdToTake * length / <span class="number">2.0</span>);</span><br><span class="line">    permitsToTake -= permitsAboveThresholdToTake;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// measuring the integral on the left part of the function (the horizontal line)</span></span><br><span class="line">  micros += (<span class="keyword">long</span>) (stableIntervalMicros * permitsToTake);</span><br><span class="line">  <span class="keyword">return</span> micros;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实现较为复杂，其核心思想在于计算消耗当前存储令牌时需要根据预热设置区别对待。其中涉及到新变量<code>thresholdPermits</code>，该变量为令牌阈值，当当前存储的令牌数大于该值时，消耗<code>(storedPermits-thresholdPermits)</code>范围的令牌需要有预热的过程（即消耗每个令牌的间隔时间慢慢减小），而消耗<code>0~thresholdPermits</code>个数的以存储令牌，每个令牌消耗时间为固定值，即<code>stableIntervalMicros</code>。<br>而<code>thresholdPermits</code>取值需要考虑预热时间及令牌产生速度两个属性，即<code>thresholdPermits = 0.5 * warmupPeriodMicros / stableIntervalMicros;</code>。可见阈值为预热时间中能够产生的令牌数的一半，并且根据注释计算消耗阈值以上的令牌的时间可以转换为计算预热图的梯形面积（实际为积分），本处不详细展开。<br>使用此种设计可以保证在上次请求间隔时间较长时，令牌桶中存储了较多的令牌，当消耗这些令牌时，最开始的令牌消耗时间较长，后续时间慢慢缩短直到达到<code>stableIntervalMicros</code>的状态，产生预热的效果。  </p>
+<h2 id="GUAVA限流器实现总结"><a href="#GUAVA限流器实现总结" class="headerlink" title="GUAVA限流器实现总结"></a>GUAVA限流器实现总结</h2><p>以上分析GUAVA限流器实现，其使用了两个抽象类及两个具体子类完成了限流器实现，其中使用顶层抽象类承担了创建者角色，将所有子类进行了透明化，减少了程序员在使用工具过程中需要了解的类的数量。<br>在实现限流器的过程中，基于令牌桶的思想，并且增加了带有预热器的令牌桶限流器实现。被限流的线程使用其自带的<code>SleepingStopwatch</code>工具类，最终使用的是<code>Thread.sleep(ms, ns);</code>方法，而线程使用<code>sleep</code>休眠时其持有的锁并不会释放，在多线程编程时此处需要注意。<br>最后，GUAVA的限流器触发算法采用的是预定令牌的方式，即当前请求需要的令牌数不会对当前请求的等待时间造成影响，而是会影响下一次请求的等待时间。  </p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文主要总结了当前常用的服务限流算法，对比个各算法特点，最后分析GUAVA包中对于限流器的实现的核心方法。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -421,9 +738,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/ReadWriteLock-state.png" rel="gallery_cjk17bk5e0006qw6hqc5ylv24"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReadWriteLock-state.png" rel="gallery_cjlkmbalc0008lz6hdp506yjn"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/ReadWriteLock-state.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JUC/ReadWriteLock-state.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -601,9 +918,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/ReentrantLockUML.png" rel="gallery_cjk17bk67000tqw6hjou9iqen"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReentrantLockUML.png" rel="gallery_cjlkmbalj000hlz6hbau34oqy"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/ReentrantLockUML.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JUC/ReentrantLockUML.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -788,9 +1105,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjk17bk65000oqw6hrgqmnh4r"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjlkmbalk000jlz6h6li3raoj"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JUC/AbstractQueuedSynchronizer.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -1122,9 +1439,9 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjk17bk5w000dqw6hfr1s8t7w"
+                 href="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjlkmbaku0000lz6hg0hwn6dt"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
-                <img src="http://p2amq694a.bkt.clouddn.com/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" itemprop="contentUrl"/>
+                <img src="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" itemprop="contentUrl"/>
               </a>
             
           
@@ -1295,7 +1612,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjk17bk63000lqw6h2rfeb5ij"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjlkmbalf000dlz6hjkf0qlv3"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" itemprop="contentUrl"/>
               </a>
@@ -1468,7 +1785,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" rel="gallery_cjk17bk5y000gqw6hbmwl5g5j"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" rel="gallery_cjlkmbaly000slz6h64pqm8mi"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" itemprop="contentUrl"/>
               </a>
@@ -1887,7 +2204,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1912,7 +2229,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -1977,7 +2294,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -2319,7 +2636,7 @@
         showTime(Counter);
       }
     });
-  </script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </script>
 
 
 
@@ -2328,6 +2645,60 @@
   
 
   
+  
+
+  
+  
+    
+      
+        
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+  
+
 
   
   

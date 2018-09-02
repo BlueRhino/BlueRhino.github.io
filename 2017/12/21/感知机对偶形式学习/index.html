@@ -118,7 +118,7 @@
 <meta property="og:description" content="总结感知机及其对偶形式">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png">
-<meta property="og:updated_time" content="2017-12-26T15:24:28.000Z">
+<meta property="og:updated_time" content="2018-08-03T03:18:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="感知机对偶形式学习">
 <meta name="twitter:description" content="总结感知机及其对偶形式">
@@ -257,7 +257,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">9</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">10</span>
       </a>
 </li>
 
@@ -416,7 +416,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjk17bk63000lqw6h2rfeb5ij"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjlkmbalf000dlz6hjkf0qlv3"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" itemprop="contentUrl"/>
               </a>
@@ -431,6 +431,7 @@
       
         <h1 id="总结感知机及其对偶形式"><a href="#总结感知机及其对偶形式" class="headerlink" title="总结感知机及其对偶形式"></a>总结感知机及其对偶形式</h1><a id="more"></a>
 <h2 id="问题背景"><a href="#问题背景" class="headerlink" title="问题背景"></a>问题背景</h2><p>实际应用中常出现二元分类问题，如引用台湾大学机器学习基石课程<sup><a href="#reference-doc">[1]</a></sup>的信用卡案例：如有用户申请信用卡，其个人信息如下：</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -465,9 +466,18 @@
 </tr>
 </tbody>
 </table>
-<p>银行具有原来的信用卡申请记录（包括申请用户信息及审批结果），如何根据原来的记录判断当前申请是否能够批准就是一个典型的二分问题。输入数据为个人信息，训练数据为历史申请及审批记录，输出数据为是否同意申请。<br>假设银行根据申请用户的各项信息（特征）为用户打分，并且设定一个阈值，在用户得分超过该阈值则同意信用卡申请，否则拒绝申请。<br>故假设用户具m个特征为<br>$$x=({x_1,x_2,\cdots,x_m})$$<br>得分阈值为$d$。每个特征对于最终的用户得分有不同的重要程度，所以为每一个特征增加入不同的权值$w=({w_1,w_2,\cdots,w_m})$，用户最终得分为<br>$$w_1x_1+w_2x_2+ \cdots +w_mx_m=\sum_{i=1}^{m}w_ix_i$$<br>最后只需要比较 $\sum_{i=1}^{m}w_ix_i$与阈值$d$的大小就可以得出结果。<br>观察上文公式，如何确定每一个信息的权值$w$及同意申请的阈值$d$就是解决问题的关键，由于具有历史数据，使用历史数据确定参数的想法就水到渠成。</p>
-<h2 id="问题抽象"><a href="#问题抽象" class="headerlink" title="问题抽象"></a>问题抽象</h2><p>根据上文背景问题的提出，可进行抽象，银行n笔已知的数据可以抽象为训练数据集<br>$$T={(x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n)}$$<br>其中$x\in\chi ,\chi\subseteq R^m$，$y\in\mathcal{Y}={+1,-1}$。<br>设上文求和公式及阈值之差为函数<br>$$h(x)=\sum_{i=1}^{m}w_ix_i-d$$<br>为简化公式取$b=-d$，则公式变化为：<br>$$h(x)=\sum_{i=1}^{m}w_ix_i+b$$<br>改写为向量形式为:<br>$$h(x)=w\cdot x+b$$<br>当$h(x)&gt;0$时，发放信用卡，否则拒绝发放信用卡<br>使用取符号的函数$sign$，得到函数<br>$$f(x)=sign(w\cdot x+b)$$<br>此函数为感知机算法需要学习得到的最终函数。</p>
-<h2 id="感知机介绍"><a href="#感知机介绍" class="headerlink" title="感知机介绍"></a>感知机介绍</h2><p>感知机1957年由<a href="https://en.wikipedia.org/wiki/Frank_Rosenblatt" target="_blank" rel="noopener">Rosenblatt</a>提出，是支持向量机及神经网络基础算法。<br>感知机主要通过训练数据集学习函数：<br>$$f(x)=sign(w\cdot x+b)$$<br>中的模型参数$w$及$b$，其中$x\in\chi ,\chi\subseteq R^m,w\in R^m,b\in R$。感知机算法要求训练集是<strong>线性可分</strong>，当训练集线性可分时可以证明感知机算法可以通过有限次的搜索找到将训练集完全区分的超平面，否则感知机算法将不会收敛<sup><a href="#reference-doc">[2]</a></sup>。</p>
+</div>
+<p>银行具有原来的信用卡申请记录（包括申请用户信息及审批结果），如何根据原来的记录判断当前申请是否能够批准就是一个典型的二分问题。输入数据为个人信息，训练数据为历史申请及审批记录，输出数据为是否同意申请。<br>假设银行根据申请用户的各项信息（特征）为用户打分，并且设定一个阈值，在用户得分超过该阈值则同意信用卡申请，否则拒绝申请。<br>故假设用户具m个特征为  </p>
+<script type="math/tex; mode=display">x=({x_1,x_2,\cdots,x_m})</script><p>得分阈值为$d$。每个特征对于最终的用户得分有不同的重要程度，所以为每一个特征增加入不同的权值$w=({w_1,w_2,\cdots,w_m})$，用户最终得分为  </p>
+<script type="math/tex; mode=display">w_1x_1+w_2x_2+ \cdots +w_mx_m=\sum_{i=1}^{m}w_ix_i</script><p>最后只需要比较 $\sum_{i=1}^{m}w_ix_i$与阈值$d$的大小就可以得出结果。<br>观察上文公式，如何确定每一个信息的权值$w$及同意申请的阈值$d$就是解决问题的关键，由于具有历史数据，使用历史数据确定参数的想法就水到渠成。</p>
+<h2 id="问题抽象"><a href="#问题抽象" class="headerlink" title="问题抽象"></a>问题抽象</h2><p>根据上文背景问题的提出，可进行抽象，银行n笔已知的数据可以抽象为训练数据集  </p>
+<script type="math/tex; mode=display">T=\{(x_1,y_1),(x_2,y_2),\cdots,(x_n,y_n)\}</script><p>其中$x\in\chi ,\chi\subseteq R^m$，$y\in\mathcal{Y}=\{+1,-1\}$。<br>设上文求和公式及阈值之差为函数  </p>
+<script type="math/tex; mode=display">h(x)=\sum_{i=1}^{m}w_ix_i-d</script><p>为简化公式取$b=-d$，则公式变化为：  </p>
+<script type="math/tex; mode=display">h(x)=\sum_{i=1}^{m}w_ix_i+b</script><p>改写为向量形式为:  </p>
+<script type="math/tex; mode=display">h(x)=w\cdot x+b</script><p>当$h(x)&gt;0$时，发放信用卡，否则拒绝发放信用卡<br>使用取符号的函数$sign$，得到函数  </p>
+<script type="math/tex; mode=display">f(x)=sign(w\cdot x+b)</script><p>此函数为感知机算法需要学习得到的最终函数。</p>
+<h2 id="感知机介绍"><a href="#感知机介绍" class="headerlink" title="感知机介绍"></a>感知机介绍</h2><p>感知机1957年由<a href="https://en.wikipedia.org/wiki/Frank_Rosenblatt" target="_blank" rel="noopener">Rosenblatt</a>提出，是支持向量机及神经网络基础算法。<br>感知机主要通过训练数据集学习函数：  </p>
+<script type="math/tex; mode=display">f(x)=sign(w\cdot x+b)</script><p>中的模型参数$w$及$b$，其中$x\in\chi ,\chi\subseteq R^m,w\in R^m,b\in R$。感知机算法要求训练集是<strong>线性可分</strong>，当训练集线性可分时可以证明感知机算法可以通过有限次的搜索找到将训练集完全区分的超平面，否则感知机算法将不会收敛<sup><a href="#reference-doc">[2]</a></sup>。</p>
 <p><strong>未完待续</strong></p>
 <p><span id="reference-doc">参考文献</span><br>[1] 林轩田.机器学习基石[R].台湾:台湾大学.<br>[2] 李航.统计学习方法[M].北京:清华大学出版社,2012:26-33.</p>
 
@@ -604,7 +614,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">9</span>
+                    <span class="site-state-item-count">10</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -629,7 +639,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-count">5</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -694,7 +704,7 @@
                     
                       
                     
-                    <span class="site-state-item-count">22</span>
+                    <span class="site-state-item-count">24</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
@@ -1076,6 +1086,13 @@
   
 
   
+  
+
+  
+  
+
+  
+
 
   
   
