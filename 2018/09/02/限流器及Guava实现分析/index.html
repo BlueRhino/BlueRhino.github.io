@@ -117,21 +117,12 @@
 <meta property="og:site_name" content="闲情记趣">
 <meta property="og:description" content="限流限流一词常用于计算机网络之中，定义如下：  In computer networks, rate limiting is used to control the rate of traffic sent or received by a network interface controller and is used to prevent DoS attacks.  通过控制数据的网络数据的">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E9%99%90%E6%B5%81%E5%99%A8%E7%AE%97%E6%B3%950.png">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E5%9B%BA%E5%AE%9A%E7%AA%97%E5%8F%A3%E8%AE%A1%E6%95%B0%E7%BC%BA%E7%82%B9.png">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%B5%81%E7%A8%8B.png">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%A4%BA%E4%BE%8B.png">
-<meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/c/c4/Leaky_bucket_analogy.JPG">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E6%BC%8F%E6%A1%B6%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B.png">
 <meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png">
-<meta property="og:image" content="https://gss3.bdstatic.com/-Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike80%2C5%2C5%2C80%2C26/sign=7de5856df4246b606f03ba268a917129/838ba61ea8d3fd1f82d87904324e251f95ca5f3f.jpg">
-<meta property="og:image" content="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter-acquire.png">
-<meta property="og:updated_time" content="2018-09-02T08:51:54.000Z">
+<meta property="og:updated_time" content="2018-09-02T09:02:36.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="限流器及Guava实现分析">
 <meta name="twitter:description" content="限流限流一词常用于计算机网络之中，定义如下：  In computer networks, rate limiting is used to control the rate of traffic sent or received by a network interface controller and is used to prevent DoS attacks.  通过控制数据的网络数据的">
-<meta name="twitter:image" content="http://qiniudns.bluerhino.top/JAVA/guava/%E9%99%90%E6%B5%81%E5%99%A8%E7%AE%97%E6%B3%950.png">
+<meta name="twitter:image" content="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png">
 
 
 
@@ -427,6 +418,22 @@
 
       
       
+        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+          
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox"
+                 href="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" rel="gallery_cjlkmojto000opm6hxaw2vkam"
+                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" itemprop="contentUrl"/>
+              </a>
+            
+          
+
+          
+          </div>
+        </div>
+      
 
       
         <h1 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h1><p><a href="https://en.wikipedia.org/wiki/Rate_limiting?_blank" target="_blank" rel="noopener">限流</a>一词常用于计算机网络之中，定义如下：</p>
@@ -438,6 +445,7 @@
 <li>常用限流算法的简单介绍及比较</li>
 <li>Guava包中限流工具的实现分析  </li>
 </ul>
+<a id="more"></a>
 <h1 id="常用限流算法"><a href="#常用限流算法" class="headerlink" title="常用限流算法"></a>常用限流算法</h1><p>援引wiki中关于<a href="https://en.wikipedia.org/wiki/Rate_limiting?_blank" target="_blank" rel="noopener">限流</a>的Algorithms一小节的说明，常用的限流算法主要包括：  </p>
 <ol>
 <li>Token bucket-令牌桶</li>
