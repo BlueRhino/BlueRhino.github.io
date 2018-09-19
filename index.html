@@ -233,7 +233,7 @@
           
   <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签<span class="badge">26</span>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签<span class="badge">28</span>
       </a>
 </li>
 
@@ -243,7 +243,7 @@
           
   <li class="menu-item menu-item-categories">
     <a href="/categories/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类<span class="badge">6</span>
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类<span class="badge">8</span>
       </a>
 </li>
 
@@ -253,7 +253,7 @@
           
   <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">10</span>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">11</span>
       </a>
 </li>
 
@@ -298,6 +298,186 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2018/09/19/Java线程池简单总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="BlueRhino">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/favicon.ico">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="闲情记趣">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/09/19/Java线程池简单总结/" itemprop="url">Java线程池简单总结</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-19T22:04:44+08:00">2018-09-19</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Javav/" itemprop="url" rel="index"><span itemprop="name">Javav</span></a></span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Javav/多线程/" itemprop="url" rel="index"><span itemprop="name">多线程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/09/19/Java线程池简单总结/" class="leancloud_visitors" data-flag-title="Java线程池简单总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body han-init-context" itemprop="articleBody">
+
+      
+      
+        <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+          
+          
+            <div class="post-gallery-row">
+              <a class="post-gallery-img fancybox"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/%E7%BA%BF%E7%A8%8B%E6%B1%A0/Executor%E7%B1%BB%E5%9B%BE.png" rel="gallery_cjm97yo1n0002jl6hyut7nj4n"
+                 itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
+                <img src="http://qiniudns.bluerhino.top/JAVA/JUC/%E7%BA%BF%E7%A8%8B%E6%B1%A0/Executor%E7%B1%BB%E5%9B%BE.png" itemprop="contentUrl"/>
+              </a>
+            
+          
+
+          
+          </div>
+        </div>
+      
+
+      
+        
+          <h1 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h1><p>线程可认为是操作系统可调度的最小的程序执行序列，一般作为进程的组成部分，同一进程中多个线程可共享该进程的资源（如内存等）。在单核处理器架构下，操作系统一般使用分时的方式实现多线程；在多核处理器架构下，多个线程能够做到真正的在不同处理核心并行处理。<br>无论使用何种方式实现多线程，正确使用多线程都可以提高程序性能，或是吞吐量，或是响应时间，甚至两者兼具。如何正确使用多线程涉及较多的理论及最佳实践，本文无法详细展开，可参考如《Programming Concurrency on the JVM》等书籍。<br>本文主要内容为简单总结Java中线程池的相关信息。<br>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/09/19/Java线程池简单总结/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -421,7 +601,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" rel="gallery_cjlkmojto000opm6hxaw2vkam"
+                 href="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" rel="gallery_cjm97yo3u002djl6h55n9w0th"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://qiniudns.bluerhino.top/JAVA/guava/RateLimiter%E7%B1%BB%E5%9B%BE.png" itemprop="contentUrl"/>
               </a>
@@ -609,7 +789,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReadWriteLock-state.png" rel="gallery_cjlkmojsz0008pm6h7z0tfly7"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReadWriteLock-state.png" rel="gallery_cjm97yo1t0006jl6h8h29jxgy"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://qiniudns.bluerhino.top/JAVA/JUC/ReadWriteLock-state.png" itemprop="contentUrl"/>
               </a>
@@ -789,7 +969,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReentrantLockUML.png" rel="gallery_cjlkmojtp000qpm6hstith0m6"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/ReentrantLockUML.png" rel="gallery_cjm97yo3p0023jl6hfi76l6mm"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://qiniudns.bluerhino.top/JAVA/JUC/ReentrantLockUML.png" itemprop="contentUrl"/>
               </a>
@@ -976,7 +1156,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjlkmojtm000jpm6hgivm2g43"
+                 href="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" rel="gallery_cjm97yo3s0028jl6h2c1d4c77"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://qiniudns.bluerhino.top/JAVA/JUC/AbstractQueuedSynchronizer.png" itemprop="contentUrl"/>
               </a>
@@ -1310,7 +1490,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjlkmojsy0007pm6hzzgql7zp"
+                 href="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" rel="gallery_cjm97yo1q0005jl6hw0hwc5ta"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://qiniudns.bluerhino.top/JAVA/JVM/JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E6%95%B0%E6%8D%AE%E5%8C%BA.png" itemprop="contentUrl"/>
               </a>
@@ -1483,7 +1663,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjlkmojtk000hpm6haab2184o"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" rel="gallery_cjm97yo3r0025jl6hgycwlpu4"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/ml/pla/%E6%84%9F%E7%9F%A5%E6%9C%BA%E7%A4%BA%E4%BE%8B%E5%9B%BE.png" itemprop="contentUrl"/>
               </a>
@@ -1656,7 +1836,7 @@
           
             <div class="post-gallery-row">
               <a class="post-gallery-img fancybox"
-                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" rel="gallery_cjlkmojtf000cpm6h27ag5k2l"
+                 href="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" rel="gallery_cjm97yo20000fjl6hkepvnaxn"
                  itemscope itemtype="http://schema.org/ImageObject" itemprop="url">
                 <img src="http://ohvbq3urs.bkt.clouddn.com/techblog/java/concurrent/lock-struct.png" itemprop="contentUrl"/>
               </a>
@@ -1871,166 +2051,13 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bluerhino.github.io/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="BlueRhino">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/favicon.ico">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="闲情记趣">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/" itemprop="url">Spring @Autowired+@Qualifier与@Resource的区别</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-02T21:37:17+08:00">2016-06-02</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-             <span id="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/" class="leancloud_visitors" data-flag-title="Spring @Autowired+@Qualifier与@Resource的区别">
-               <span class="post-meta-divider">|</span>
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               
-                 <span class="post-meta-item-text">阅读次数&#58;</span>
-               
-                 <span class="leancloud-visitors-count"></span>
-             </span>
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body han-init-context" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>最近由于希望使用Spring在XML文件中定义List的bean，并使用@Autowired进行注入到对象中使用，遇到到一些坑，记录一下作为备忘。<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/06/02/Spring @Autowired+@Qualifier与@Resource的区别/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+  </nav>
+
 
 
           </div>
@@ -2075,7 +2102,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-count">11</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -2100,7 +2127,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">5</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">分类</span>
                   </a>
                 </div>
@@ -2165,7 +2196,11 @@
                     
                       
                     
-                    <span class="site-state-item-count">24</span>
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">26</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
